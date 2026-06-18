@@ -3,9 +3,7 @@ import { Member } from '../../Domain/Member/member'
 import { UUID } from '../../Domain/shared/vo/uuid'
 
 export class MemberRepositoryImpl implements IMemberRepository {
-  // インメモリでいい
-  constructor(private readonly _db: any) {}
-
+  // DB呼び出す
   async findAll(): Promise<Member[]> {
     return this._db.findAll()
   }

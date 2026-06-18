@@ -47,3 +47,5 @@ domain
 
 - [x] db用意
 - [ ] コントローラーとユースケース繋ぐ
+tsyringe入れる。
+transactionManager作る

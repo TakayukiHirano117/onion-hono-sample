@@ -1,19 +1,22 @@
 import { Hono } from "hono";
-import { MemberController } from "./Presentation/Controller/member_controller";
+import { MemberController } from "./Presentation/Member/member_controller";
+import { FindAllMemberController } from "./Presentation/Member/find_all_member_controller";
 import { FindAllMemberAppService } from "./ApplicationService/Member/find_all_member_app_service";
 import { MemberRepositoryImpl } from "./Infra/Repository/member_repository_impl";
-import { IMemberRepository } from "./Domain/Member/i_member_repository";
 
 const app = new Hono();
+
+const memberRepository = new MemberRepositoryImpl();
+const findAllMemberAppService = new FindAllMemberAppService(memberRepository);
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
 
-// controllerをDIしてインスタンス化したい。
 const memberController = new MemberController(
-  new FindAllMemberController(new FindAllMemberAppService(new MemberRepositoryImpl(new MemberRepository()))),
+  new FindAllMemberController(findAllMemberAppService),
 );
-app.route("/members", memberController);
+
+app.route("/members", memberController.setUpRoutes());
 
 export default app;
