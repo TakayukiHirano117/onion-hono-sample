@@ -1,13 +1,17 @@
 {
   "name": "onion-hono-sample",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "migrate": "bun run src/Infra/Database/migrate.ts"
   },
   "dependencies": {
     "hono": "^4.12.25",
+    "kysely": "^0.29.2",
+    "pg": "^8.21.0",
     "uuidv7": "^1.2.1"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/pg": "^8.20.0"
   }
 }
