@@ -8,6 +8,7 @@ import type {
 export interface Database {
   members: MemberTable;
   likes: LikeTable;
+  profiles: ProfileTable;
 }
 
 export interface MemberTable {
@@ -30,3 +31,16 @@ export interface LikeTable {
 export type LikeRow = Selectable<LikeTable>;
 export type NewLikeRow = Insertable<LikeTable>;
 export type LikeRowUpdate = Updateable<LikeTable>;
+
+export interface ProfileTable {
+  member_id: string;
+  bio: string | null;
+  gender: string | null;
+  birth_date: string | null;
+  created_at: ColumnType<Date, never, never>;
+  updated_at: ColumnType<Date, never, never>;
+}
+
+export type ProfileRow = Selectable<ProfileTable>;
+export type NewProfileRow = Insertable<ProfileTable>;
+export type ProfileRowUpdate = Updateable<ProfileTable>;
