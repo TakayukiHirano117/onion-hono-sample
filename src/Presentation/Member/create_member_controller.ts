@@ -21,12 +21,8 @@ export class CreateMemberController {
       return c.json({ errors: parseResult.error.issues }, 422);
     }
 
-    const member = await this._createMemberAppService.execute(parseResult.data);
+    await this._createMemberAppService.execute(parseResult.data);
 
-    return c.json({
-      id: member.id.value,
-      name: member.name.value,
-      email: member.email.value,
-    }, 201);
+    return c.json({ status: "ok" }, 200);
   }
 }

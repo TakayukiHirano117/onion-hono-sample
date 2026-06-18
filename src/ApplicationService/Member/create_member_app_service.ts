@@ -20,7 +20,7 @@ export class CreateMemberAppService {
     private readonly _transactionManager: ITransactionManager,
   ) {}
 
-  async execute(input: CreateMemberInput): Promise<Member> {
+  async execute(input: CreateMemberInput): Promise<void> {
     const member = new Member(
       new UUID(UUIDGenerator.generate()),
       new Name(input.name),
@@ -32,7 +32,5 @@ export class CreateMemberAppService {
       await this._memberRepository.create(member, tx);
       await this._profileRepository.create(profile, tx);
     });
-
-    return member;
   }
 }
