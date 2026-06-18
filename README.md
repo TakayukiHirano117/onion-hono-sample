@@ -17,6 +17,9 @@ open http://localhost:3000
 
 domain
   - member
+    - id
+    - name
+    - email
   - good
 infra
   - 
