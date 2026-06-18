@@ -49,3 +49,7 @@ domain
 - [ ] コントローラーとユースケース繋ぐ
 tsyringe入れる。
 transactionManager作る
+レスポンスの方定義する。
+zodのvalidator作成
+他のユースケース
+マッチングも作りたい。
