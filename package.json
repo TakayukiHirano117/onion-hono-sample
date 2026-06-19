@@ -2,7 +2,9 @@
   "name": "onion-hono-sample",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "migrate": "bun run src/Infra/Database/migrate.ts"
+    "migrate": "bun run src/Infra/Database/migrate.ts",
+    "test": "bunx --bun vitest",
+    "test:ui": "bunx --bun vitest --ui"
   },
   "dependencies": {
     "hono": "^4.12.25",
