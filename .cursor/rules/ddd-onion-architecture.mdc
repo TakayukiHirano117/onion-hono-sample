@@ -1,0 +1,45 @@
+---
+description: DDD and onion architecture implementation rules
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# DDD / Onion Architecture Rules
+
+このプロジェクトでは DDD とオニオンアーキテクチャの責務分離を守る。
+
+## Domain
+
+- `src/Domain` 以下に集約ごとのディレクトリを切り、Value Object と Entity を実装する。
+- Entity 名は、原則として `src/Domain` 直下の集約ディレクトリ名を lowercase にしたものを採用する。
+- 必要に応じて、各集約ごとに Repository の interface を作成する。
+- Repository interface のファイル名は `i_集約名_repository.ts` とする。
+- DomainService の interface は `src/Domain` 以下に配置する。
+- `src/Domain` 以下のファイルは、基本的にどの層にも依存しない。
+- Domain 層ではライブラリ依存を可能な限り避ける。
+
+## Infra
+
+- `src/Infra` 以下にインフラ層を実装する。
+- Infra 層には、集約を表現する Repository の実装、QueryService の実装、DomainService の実装クラスを配置する。
+- Infra 層のファイルを `Presentation` や `Domain` から直接 import して使用することは基本的に禁止する。
+- Infra 層は外部 API とのやりとり、DB 永続化など技術的な詳細を担当する。
+
+## ApplicationService
+
+- `src/ApplicationService` 以下にユースケースを実装する。
+- ユースケースは、ユーザーがその機能を用いて何をできるかをわかりやすく表現する。
+- ファイル名は `ユーザーができること_app_service.ts` とする。
+- 原則として 1 ユースケースにつき 1 ファイルに分割する。
+- 原則として 1 ユースケースにつき `execute` メソッドを 1 つ持つ。
+- QueryService の interface は `src/ApplicationService` 以下に配置する。
+- ApplicationService 層は Domain 層と Infra 層のオブジェクトを用いてユースケースを組み立てる。
+
+## Presentation
+
+- `src/Presentation` 以下に controller を配置する。
+- controller では簡易的なバリデーション、入力の受け取り、レスポンスの返却を行う。
+- controller から Domain 層、Infra 層のオブジェクトを直接呼び出すことは禁止する。
+- controller のバリデーションは存在チェック程度に止める。
+- 1 controller は 1 action とする。
+- 関心ごとに親 controller を作成し、その中で DI とルーティング設定を行う。
