@@ -3,6 +3,7 @@ import { z } from "zod";
 import { CreateMemberAppService } from "../../ApplicationService/Member/create_member_app_service";
 import { Name } from "../../Domain/Member/vo/name";
 
+// これドメインロジックがプレゼンテーションに出てるのは微妙かも
 const createMemberRequestSchema = z.object({
   name: z.string().min(Name.MIN_NAME_LENGTH).max(Name.MAX_NAME_LENGTH),
   email: z.string().email(),
