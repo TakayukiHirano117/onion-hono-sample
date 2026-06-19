@@ -1,22 +1,16 @@
-export class Name {
-  private readonly _value: string
+import { BaseValueObject } from "../../shared/vo/base_value_object"
 
-  static readonly MAX_NAME_LENGTH = 50
+type NameValue = string
+export class Name extends BaseValueObject<NameValue> {
   static readonly MIN_NAME_LENGTH = 2
 
-  constructor(value: string) {
-    this.validate(value)
-
-    this._value = value
+  constructor(value: NameValue) {
+    super(value)
   }
 
-  private validate(value: string): void {
-    if (value.length < Name.MIN_NAME_LENGTH || value.length > Name.MAX_NAME_LENGTH) {
-      throw new Error(`名前の長さが不正です。(最小${Name.MIN_NAME_LENGTH}文字、最大${Name.MAX_NAME_LENGTH}文字)`)
+  protected validate(value: NameValue): void {
+    if (value.length < Name.MIN_NAME_LENGTH) {
+      throw new Error(`名前の長さが不正です。(最小${Name.MIN_NAME_LENGTH}文字)`)
     }
-  }
-
-  get value(): string {
-    return this._value
   }
 }
