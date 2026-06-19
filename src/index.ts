@@ -7,18 +7,26 @@ import { CreateMemberController } from "./Presentation/Member/create_member_cont
 import { CreateMemberAppService } from "./ApplicationService/Member/create_member_app_service";
 import { ProfileRepositoryImpl } from "./Infra/Repository/profile_repository_impl";
 import { TransactionManagerImpl } from "./Infra/shared/transaction_manager_impl";
+import { LikeRepositoryImpl } from "./Infra/Repository/like_repository_impl";
+import { SendLikeAppService } from "./ApplicationService/Like/send_like_app_service";
+import { LikeController } from "./Presentation/Like/like_controller";
 
 const app = new Hono();
 
 // DIコンテナ作るかべつファイルにルーティングを逃してここで読み込むか
 const memberRepository = new MemberRepositoryImpl();
 const profileRepository = new ProfileRepositoryImpl();
+const likeRepository = new LikeRepositoryImpl();
 const transactionManager = new TransactionManagerImpl();
 const findAllMemberAppService = new FindAllMemberAppService(memberRepository);
 const createMemberAppService = new CreateMemberAppService(
   memberRepository,
   profileRepository,
   transactionManager,
+);
+const sendLikeAppService = new SendLikeAppService(
+  likeRepository,
+  memberRepository,
 );
 
 app.get("/", (c) => {
@@ -29,7 +37,9 @@ const memberController = new MemberController(
   new FindAllMemberController(findAllMemberAppService),
   new CreateMemberController(createMemberAppService),
 );
+const likeController = new LikeController(sendLikeAppService);
 
 app.route("/members", memberController.setUpRoutes());
+app.route("/likes", likeController.setUpRoutes());
 
 export default app;
