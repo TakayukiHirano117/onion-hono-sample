@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { MemberController } from "./Presentation/Member/member_controller";
 import { FindAllMemberController } from "./Presentation/Member/find_all_member_controller";
 import { FindAllMemberAppService } from "./ApplicationService/Member/find_all_member_app_service";
@@ -29,7 +29,7 @@ const sendLikeAppService = new SendLikeAppService(
   memberRepository,
 );
 
-app.get("/", (c) => {
+app.get("/", (c: Context) => {
   return c.text("Hello Hono!");
 });
 
