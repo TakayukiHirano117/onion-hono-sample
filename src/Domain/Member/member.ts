@@ -3,6 +3,8 @@ import { Name } from "./vo/name";
 import { Email } from "../shared/vo/email";
 
 export class Member {
+  static readonly MAX_MONTHLY_LIKE_COUNT = 100;
+
   constructor(
     private readonly _id: UUID,
     private readonly _name: Name,
@@ -13,7 +15,9 @@ export class Member {
     return new Member(id, new Name(name), new Email(email));
   }
 
-  // ドメインロジック追加
+  canSendLike(sentLikeCountThisMonth: number): boolean {
+    return sentLikeCountThisMonth < Member.MAX_MONTHLY_LIKE_COUNT;
+  }
 
   get id(): UUID {
     return this._id;

@@ -10,6 +10,7 @@ import { TransactionManagerImpl } from "./Infra/shared/transaction_manager_impl"
 
 const app = new Hono();
 
+// DIコンテナ作るかべつファイルにルーティングを逃してここで読み込むか
 const memberRepository = new MemberRepositoryImpl();
 const profileRepository = new ProfileRepositoryImpl();
 const transactionManager = new TransactionManagerImpl();
