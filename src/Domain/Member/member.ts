@@ -11,8 +11,8 @@ export class Member {
     private readonly _email: Email,
   ) {}
 
-  static create(id: UUID, name: string, email: string): Member {
-    return new Member(id, new Name(name), new Email(email));
+  static create(id: UUID, name: Name, email: Email): Member {
+    return new Member(id, name, email);
   }
 
   canSendLike(sentLikeCountThisMonth: number): boolean {
