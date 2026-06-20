@@ -3,13 +3,9 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { SendLikeAppService } from "../../ApplicationService/Like/send_like_app_service";
 
-const uuidSchema = z
-  .string()
-  .regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
-
 const sendLikeRequestSchema = z.object({
-  fromMemberId: uuidSchema,
-  toMemberId: uuidSchema,
+  fromMemberId: z.string(),
+  toMemberId: z.string(),
 });
 
 export class LikeController {

@@ -7,6 +7,7 @@
     "test:ui": "bunx --bun vitest --ui"
   },
   "dependencies": {
+    "@hono/swagger-ui": "^0.6.1",
     "hono": "^4.12.25",
     "kysely": "^0.29.2",
     "pg": "^8.21.0",

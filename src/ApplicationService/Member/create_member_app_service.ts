@@ -1,7 +1,9 @@
 import { IMemberRepository } from "../../Domain/Member/i_member_repository";
 import { Member } from "../../Domain/Member/member";
+import { Name } from "../../Domain/Member/vo/name";
 import { IProfileRepository } from "../../Domain/Profile/i_profile_repository";
 import { Profile } from "../../Domain/Profile/profile";
+import { Email } from "../../Domain/shared/vo/email";
 import { UUID } from "../../Domain/shared/vo/uuid";
 import type { ITransactionManager } from "../../Infra/shared/i_transaction_manager";
 import { UUIDGenerator } from "../../Infra/shared/uuid_generator";
@@ -21,8 +23,8 @@ export class CreateMemberAppService {
   async execute(input: CreateMemberInput): Promise<void> {
     const member = Member.create(
       new UUID(UUIDGenerator.generate()),
-      input.name,
-      input.email,
+      new Name(input.name),
+      new Email(input.email),
     );
     const profile = Profile.createEmpty(member.id);
 

@@ -46,9 +46,9 @@ export type MatchRowUpdate = Updateable<MatchTable>;
 
 export interface ProfileTable {
   member_id: string;
-  bio: string | null;
-  gender: string | null;
-  birth_date: string | null;
+  bio: string;
+  gender: string;
+  birth_date: string;
   created_at: ColumnType<Date, never, never>;
   updated_at: ColumnType<Date, never, never>;
 }

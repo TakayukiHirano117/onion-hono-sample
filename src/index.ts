@@ -11,7 +11,7 @@ import { LikeRepositoryImpl } from "./Infra/Repository/like_repository_impl";
 import { SendLikeAppService } from "./ApplicationService/Like/send_like_app_service";
 import { LikeController } from "./Presentation/Like/like_controller";
 
-const app = new Hono();
+const app = new Hono().basePath("/api/v1");
 
 // DIコンテナ作るかべつファイルにルーティングを逃してここで読み込むか
 const memberRepository = new MemberRepositoryImpl();
@@ -29,6 +29,7 @@ const sendLikeAppService = new SendLikeAppService(
   memberRepository,
 );
 
+// health check
 app.get("/", (c: Context) => {
   return c.text("Hello Hono!");
 });
@@ -37,6 +38,7 @@ const memberController = new MemberController(
   new FindAllMemberController(findAllMemberAppService),
   new CreateMemberController(createMemberAppService),
 );
+
 const likeController = new LikeController(sendLikeAppService);
 
 app.route("/members", memberController.setUpRoutes());
