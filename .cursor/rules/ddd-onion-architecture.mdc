@@ -41,5 +41,9 @@ alwaysApply: false
 - controller では簡易的なバリデーション、入力の受け取り、レスポンスの返却を行う。
 - controller から Domain 層、Infra 層のオブジェクトを直接呼び出すことは禁止する。
 - controller のバリデーションは存在チェック程度に止める。
+- controller のバリデーションに Domain 層の知識を持ち込まない。
+  - Domain の定数・Value Object・Entity を import して制約を定義しない（例: `Name.MIN_NAME_LENGTH`、`z.string().email()`、UUID 正規表現）。
+  - 文字数・形式・許可値などのビジネスルールは Domain 層で検証する。
+  - Presentation では「必須パラメータが来ているか」「型が大まかに合うか」程度に留める（例: `z.string()`）。
 - 1 controller は 1 action とする。
 - 関心ごとに親 controller を作成し、その中で DI とルーティング設定を行う。

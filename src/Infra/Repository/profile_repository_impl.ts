@@ -16,8 +16,8 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       .values({
         member_id: profile.memberId.value,
         bio: profile.bio,
-        gender: profile.gender?.value ?? null,
-        birth_date: profile.birthDate?.value ?? null,
+        gender: profile.gender.value,
+        birth_date: profile.birthDate.value,
       })
       .execute();
   }

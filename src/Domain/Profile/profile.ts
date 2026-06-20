@@ -5,28 +5,33 @@ import { Gender } from "./vo/gender";
 export class Profile {
   constructor(
     private readonly _memberId: UUID,
-    private readonly _bio: string | null,
-    private readonly _gender: Gender | null,
-    private readonly _birthDate: BirthDate | null,
+    private readonly _bio: string,
+    private readonly _gender: Gender,
+    private readonly _birthDate: BirthDate,
   ) {}
 
   static createEmpty(memberId: UUID): Profile {
-    return new Profile(memberId, null, null, null);
+    return new Profile(
+      memberId,
+      "",
+      new Gender(Gender.OTHER),
+      new BirthDate("1900-01-01"),
+    );
   }
 
   get memberId(): UUID {
     return this._memberId;
   }
 
-  get bio(): string | null {
+  get bio(): string {
     return this._bio;
   }
 
-  get gender(): Gender | null {
+  get gender(): Gender {
     return this._gender;
   }
 
-  get birthDate(): BirthDate | null {
+  get birthDate(): BirthDate {
     return this._birthDate;
   }
 }
