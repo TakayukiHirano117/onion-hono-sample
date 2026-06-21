@@ -9,6 +9,7 @@ export class Member {
     private readonly _id: UUID,
     private readonly _name: Name,
     private readonly _email: Email,
+　　// profileをidで参照する
   ) {}
 
   static create(id: UUID, name: Name, email: Email): Member {
