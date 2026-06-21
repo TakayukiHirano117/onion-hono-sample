@@ -16,6 +16,7 @@ export interface MemberTable {
   id: string;
   name: string;
   email: string;
+  password_hash: string;
 }
 
 export type MemberRow = Selectable<MemberTable>;

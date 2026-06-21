@@ -5,6 +5,7 @@ import { CreateMemberAppService } from "../../ApplicationService/Member/create_m
 const createMemberRequestSchema = z.object({
   name: z.string(),
   email: z.string(),
+  rawPassword: z.string(),
   bio: z.string(),
   gender: z.string(),
   birthDate: z.string(),

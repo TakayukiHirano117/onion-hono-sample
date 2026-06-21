@@ -15,7 +15,7 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       .insertInto("profiles")
       .values({
         member_id: profile.memberId.value,
-        bio: profile.bio,
+        bio: profile.bio.value,
         gender: profile.gender.value,
         birth_date: profile.birthDate.value,
       })

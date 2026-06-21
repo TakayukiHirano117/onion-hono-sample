@@ -7,19 +7,19 @@ export class MemberController {
   constructor(
     private readonly _findAllMemberController: FindAllMemberController,
     private readonly _createMemberController: CreateMemberController,
-    private readonly _hono: Hono,
-  ) {
-  }
+  ) {}
 
   setUpRoutes = () => {
-    this._hono.get("/", (c: Context) =>
+    const router = new Hono();
+
+    router.get("/", (c: Context) =>
       this._findAllMemberController.handle(c),
     );
 
-    this._hono.post("/", (c: Context) =>
+    router.post("/", (c: Context) =>
       this._createMemberController.handle(c),
     );
 
-    return this._hono;
+    return router;
   };
 }

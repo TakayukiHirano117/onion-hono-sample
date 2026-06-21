@@ -4,10 +4,13 @@
     "dev": "bun run --hot src/index.ts",
     "migrate": "bun run src/Infra/Database/migrate.ts",
     "test": "bunx --bun vitest",
-    "test:ui": "bunx --bun vitest --ui"
+    "test:ui": "bunx --bun vitest --ui",
+    "install:lib": "docker compose run --rm api bun install && bun install"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.6.1",
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0",
     "hono": "^4.12.25",
     "kysely": "^0.29.2",
     "pg": "^8.21.0",

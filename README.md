@@ -77,3 +77,25 @@ statusを使って判定する。
 
 
 controllerでのビジネスロジックのバリデーションは不要。
+
+- [ ] 認証とミドルウェア実装
+  - [ ] cookieとサーバーセッション方式で実装する。
+    - [x] membersテーブルにpassword_hashカラム追加
+    - [x] sessionsテーブル作成、id, member_id, expires_at
+
+登録時 → ユーザーのプロフィール情報と共に、最初にメールアドレス・パスワードも入力してもらう。
+- [x] create_member_controller.tsで受け取るparam追加
+- [x] infraでパスワードハッシュ生成処理作成
+
+※ 最初は画面のフローとか気にせずやる。
+一旦cookie, サーバーセッションで実装したらあとでパスワードレスでemail → ６桁の番号みたいな
+ありがちなやつにしてみる。
+
+その後、
+- [ ] ログイン処理実装
+  - [ ] ログイン時にメールアドレス・パスワードが正しければセッションID生成
+  - [ ] sessionsテーブルに保存。
+  - [ ] HttpOnly: true, Secure: true, SameSite: 'Lax'でレスポンスヘッダーに付与
+
+
+

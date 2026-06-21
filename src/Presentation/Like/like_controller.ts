@@ -9,14 +9,14 @@ const sendLikeRequestSchema = z.object({
 });
 
 export class LikeController {
-  constructor(private readonly _sendLikeAppService: SendLikeAppService,
-    private readonly _hono: Hono,
-  ) {}
+  constructor(private readonly _sendLikeAppService: SendLikeAppService) {}
 
   setUpRoutes = () => {
-    this._hono.post("/", (c: Context) => this.handleSendLike(c));
+    const router = new Hono();
 
-    return this._hono;
+    router.post("/", (c: Context) => this.handleSendLike(c));
+
+    return router;
   };
 
   private async handleSendLike(c: Context) {

@@ -32,7 +32,7 @@ export class MemberRepositoryImpl implements IMemberRepository {
     return this.toMember(row);
   }
 
-  async create(member: Member, tx?: unknown): Promise<void> {
+  async create(member: Member, passwordHash: string, tx?: unknown): Promise<void> {
     const executor = resolveExecutor(this._db, tx);
 
     await executor
@@ -41,6 +41,7 @@ export class MemberRepositoryImpl implements IMemberRepository {
         id: member.id.value,
         name: member.name.value,
         email: member.email.value,
+        password_hash: passwordHash,
       })
       .execute();
   }

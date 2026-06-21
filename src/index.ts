@@ -10,6 +10,7 @@ import { TransactionManagerImpl } from "./Infra/shared/transaction_manager_impl"
 import { LikeRepositoryImpl } from "./Infra/Repository/like_repository_impl";
 import { SendLikeAppService } from "./ApplicationService/Like/send_like_app_service";
 import { LikeController } from "./Presentation/Like/like_controller";
+import { PasswordHashGenerator } from "./Infra/shared/password_hash_generator";
 
 const app = new Hono().basePath("/api/v1");
 
@@ -18,11 +19,13 @@ const memberRepository = new MemberRepositoryImpl();
 const profileRepository = new ProfileRepositoryImpl();
 const likeRepository = new LikeRepositoryImpl();
 const transactionManager = new TransactionManagerImpl();
+const passwordHashGenerator = new PasswordHashGenerator();
 const findAllMemberAppService = new FindAllMemberAppService(memberRepository);
 const createMemberAppService = new CreateMemberAppService(
   memberRepository,
   profileRepository,
   transactionManager,
+  passwordHashGenerator,
 );
 const sendLikeAppService = new SendLikeAppService(
   likeRepository,
