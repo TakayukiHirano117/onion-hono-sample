@@ -27,11 +27,12 @@ export class CreateMemberAppService {
     private readonly _profileRepository: IProfileRepository,
     private readonly _transactionManager: ITransactionManager,
     private readonly _passwordHashGenerator: IPasswordHashGenerator,
+    private readonly _uuidGenerator: UUIDGenerator
   ) {}
 
   async execute(input: CreateMemberInput): Promise<void> {
     const member = Member.create(
-      new UUID(UUIDGenerator.generate()),
+      new UUID(this._uuidGenerator.execute()),
       new Name(input.name),
       new Email(input.email),
     );

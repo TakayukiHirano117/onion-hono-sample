@@ -10,6 +10,7 @@ export interface Database {
   likes: LikeTable;
   matches: MatchTable;
   profiles: ProfileTable;
+  sessions: SessionTable;
 }
 
 export interface MemberTable {
@@ -57,3 +58,15 @@ export interface ProfileTable {
 export type ProfileRow = Selectable<ProfileTable>;
 export type NewProfileRow = Insertable<ProfileTable>;
 export type ProfileRowUpdate = Updateable<ProfileTable>;
+
+export interface SessionTable {
+  id: string;
+  member_id: string;
+  expires_at: Date;
+  created_at: ColumnType<Date, never, never>;
+  updated_at: ColumnType<Date, never, never>;
+}
+
+export type SessionRow = Selectable<SessionTable>;
+export type NewSessionRow = Insertable<SessionTable>;
+export type SessionRowUpdate = Updateable<SessionTable>;

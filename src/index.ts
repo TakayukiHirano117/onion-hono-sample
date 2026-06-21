@@ -11,6 +11,7 @@ import { LikeRepositoryImpl } from "./Infra/Repository/like_repository_impl";
 import { SendLikeAppService } from "./ApplicationService/Like/send_like_app_service";
 import { LikeController } from "./Presentation/Like/like_controller";
 import { PasswordHashGenerator } from "./Infra/shared/password_hash_generator";
+import { UUIDGenerator } from "./Infra/shared/uuid_generator";
 
 const app = new Hono().basePath("/api/v1");
 
@@ -20,16 +21,19 @@ const profileRepository = new ProfileRepositoryImpl();
 const likeRepository = new LikeRepositoryImpl();
 const transactionManager = new TransactionManagerImpl();
 const passwordHashGenerator = new PasswordHashGenerator();
+const uuidGenerator = new UUIDGenerator();
 const findAllMemberAppService = new FindAllMemberAppService(memberRepository);
 const createMemberAppService = new CreateMemberAppService(
   memberRepository,
   profileRepository,
   transactionManager,
   passwordHashGenerator,
+  uuidGenerator,
 );
 const sendLikeAppService = new SendLikeAppService(
   likeRepository,
   memberRepository,
+  uuidGenerator,
 );
 
 // health check

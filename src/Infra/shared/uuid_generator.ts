@@ -1,7 +1,7 @@
 import { uuidv7 } from "uuidv7";
 
 export class UUIDGenerator {
-  static generate(): string {
+  execute(): string {
     return uuidv7()
   }
 }

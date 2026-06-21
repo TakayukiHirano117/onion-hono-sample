@@ -97,5 +97,18 @@ controllerでのビジネスロジックのバリデーションは不要。
   - [ ] sessionsテーブルに保存。
   - [ ] HttpOnly: true, Secure: true, SameSite: 'Lax'でレスポンスヘッダーに付与
 
+- [ ] controller
+  - [ ] emailとpasswordを受け取る
+  - [ ] 簡易的なバリデーション
+  - [ ] ユースケースを呼び出す
+  - [ ] ユースケースでメールアドレスとパスワードが正し以下どうかチェックする
+    - [ ] domain_serviceで行う。
+  - [ ] レスポンスを返す
+- [ ] usecase
+- [ ] infra
 
 
+##
+メンバー登録改修
+同じemailを持つユーザーで登録できない様にする。
+  emailでユーザーの存在チェックをできる様にする。

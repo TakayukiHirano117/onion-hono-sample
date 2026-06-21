@@ -13,13 +13,14 @@ export class SendLikeAppService {
   constructor(
     private readonly _likeRepository: ILikeRepository,
     private readonly _memberRepository: IMemberRepository,
+    private readonly _uuidGenerator: UUIDGenerator
   ) {}
 
   async execute(input: SendLikeInput): Promise<void> {
     const fromMemberId = new UUID(input.fromMemberId);
     const toMemberId = new UUID(input.toMemberId);
     const like = Like.create(
-      new UUID(UUIDGenerator.generate()),
+      new UUID(this._uuidGenerator.execute()),
       fromMemberId,
       toMemberId,
     );

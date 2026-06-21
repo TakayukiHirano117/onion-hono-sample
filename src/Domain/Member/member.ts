@@ -13,6 +13,7 @@ export class Member {
   ) {}
 
   static create(id: UUID, name: Name, email: Email): Member {
+    // すでにemailがあったらダメ
     return new Member(id, name, email);
   }
 

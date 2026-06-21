@@ -32,6 +32,20 @@ export class MemberRepositoryImpl implements IMemberRepository {
     return this.toMember(row);
   }
 
+  async findByEmail(email: Email): Promise<Member | null> {
+    const row = await this._db
+      .selectFrom("members")
+      .selectAll()
+      .where("email", "=", email.value)
+      .executeTakeFirst();
+
+    if (!row) {
+      return null;
+    }
+
+    return this.toMember(row);
+  }
+
   async create(member: Member, passwordHash: string, tx?: unknown): Promise<void> {
     const executor = resolveExecutor(this._db, tx);
 
