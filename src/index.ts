@@ -10,8 +10,14 @@ import { TransactionManagerImpl } from "./Infra/shared/transaction_manager_impl"
 import { LikeRepositoryImpl } from "./Infra/Repository/like_repository_impl";
 import { SendLikeAppService } from "./ApplicationService/Like/send_like_app_service";
 import { LikeController } from "./Presentation/Like/like_controller";
+import { LoginAppService } from "./ApplicationService/Auth/members/login_app_service";
 import { PasswordHashGenerator } from "./Infra/shared/password_hash_generator";
 import { UUIDGenerator } from "./Infra/shared/uuid_generator";
+import { AuthController } from "./Presentation/auth/auth_controller";
+import { LoginController } from "./Presentation/auth/members/login_controller";
+import { PasswordVerificationDomainService } from "./Infra/DomainService/password_verification_domain_service";
+import { FindByEmailForLoginQueryServiceImpl } from "./Infra/QueryService/find_by_email_for_login_query_service_impl";
+import { LoginSessionGeneratorImpl } from "./Infra/shared/login_session_generator_impl";
 
 const app = new Hono().basePath("/api/v1");
 
@@ -21,7 +27,17 @@ const profileRepository = new ProfileRepositoryImpl();
 const likeRepository = new LikeRepositoryImpl();
 const transactionManager = new TransactionManagerImpl();
 const passwordHashGenerator = new PasswordHashGenerator();
+const passwordVerificationDomainService = new PasswordVerificationDomainService();
+const findByEmailForLoginQueryService = new FindByEmailForLoginQueryServiceImpl();
+const loginSessionGenerator = new LoginSessionGeneratorImpl();
+
 const uuidGenerator = new UUIDGenerator();
+const loginAppService = new LoginAppService(
+  passwordVerificationDomainService,
+  findByEmailForLoginQueryService,
+  uuidGenerator,
+  loginSessionGenerator,
+);
 const findAllMemberAppService = new FindAllMemberAppService(memberRepository);
 const createMemberAppService = new CreateMemberAppService(
   memberRepository,
@@ -48,7 +64,12 @@ const memberController = new MemberController(
 
 const likeController = new LikeController(sendLikeAppService);
 
+const authController = new AuthController(
+  new LoginController(loginAppService),
+);
+
 app.route("/members", memberController.setUpRoutes());
 app.route("/likes", likeController.setUpRoutes());
+app.route("/auth", authController.setUpRoutes());
 
 export default app;

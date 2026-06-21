@@ -8,7 +8,7 @@ export class AuthController {
   ) {}
 
   setUpRoutes = () => {
-    const router = new Hono().basePath("/auth");
+    const router = new Hono();
 
     // members
     router.post("/members/login", (c: Context) => this._loginController.handle(c));

@@ -24,11 +24,11 @@ export class LoginController {
     const { sessionId, expiresAt, member } = await this._loginAppService.execute(parseResult.data);
 
     setCookie(c, "session_id", sessionId, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "Lax",
-      expires: expiresAt,
-      path: "/",
+      httpOnly: true, // javascriptからcookieにアクセスできないようにする
+      secure: true, // httpsでしかcookieを送信できないようにする
+      sameSite: "Lax", // 同じサイトからのリクエストのみcookieを送信できるようにする
+      expires: expiresAt, // 有効期限
+      path: "/", // 全てのパスでcookieを送信できるようにする
     });
 
     return c.json(
