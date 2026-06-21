@@ -32,6 +32,8 @@ export class LoginAppService {
       throw new Error("パスワードが不正です。");
     }
 
+    // TODO: すでにsessionが存在する場合はログイン済みとし、sessionを更新する。
+
     const uuid = this._uuidGenerator.execute();
     const session = await this._loginSessionGenerator.execute(uuid, result.id);
 

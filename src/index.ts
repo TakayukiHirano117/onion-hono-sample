@@ -18,6 +18,10 @@ import { LoginController } from "./Presentation/auth/members/login_controller";
 import { PasswordVerificationDomainService } from "./Infra/DomainService/password_verification_domain_service";
 import { FindByEmailForLoginQueryServiceImpl } from "./Infra/QueryService/find_by_email_for_login_query_service_impl";
 import { LoginSessionGeneratorImpl } from "./Infra/shared/login_session_generator_impl";
+import { AuthMiddleware } from "./Cmd/middlewares/members/auth_middeware";
+import { LogoutController } from "./Presentation/auth/members/logout_controller";
+import { LogoutAppService } from "./ApplicationService/Auth/members/logout_app_service";
+import { SessionDeleteManager } from "./Infra/shared/session_delete_manager";
 
 const app = new Hono().basePath("/api/v1");
 
@@ -30,6 +34,8 @@ const passwordHashGenerator = new PasswordHashGenerator();
 const passwordVerificationDomainService = new PasswordVerificationDomainService();
 const findByEmailForLoginQueryService = new FindByEmailForLoginQueryServiceImpl();
 const loginSessionGenerator = new LoginSessionGeneratorImpl();
+const authMiddleware = new AuthMiddleware();
+const sessionDeleteManager = new SessionDeleteManager();
 
 const uuidGenerator = new UUIDGenerator();
 const loginAppService = new LoginAppService(
@@ -38,6 +44,7 @@ const loginAppService = new LoginAppService(
   uuidGenerator,
   loginSessionGenerator,
 );
+const logoutAppService = new LogoutAppService(sessionDeleteManager);
 const findAllMemberAppService = new FindAllMemberAppService(memberRepository);
 const createMemberAppService = new CreateMemberAppService(
   memberRepository,
@@ -60,13 +67,18 @@ app.get("/", (c: Context) => {
 const memberController = new MemberController(
   new FindAllMemberController(findAllMemberAppService),
   new CreateMemberController(createMemberAppService),
+  authMiddleware,
 );
 
 const likeController = new LikeController(sendLikeAppService);
 
 const authController = new AuthController(
   new LoginController(loginAppService),
+  new LogoutController(logoutAppService),
 );
+
+app.use("/likes", authMiddleware.handle);
+app.use("/likes/*", authMiddleware.handle);
 
 app.route("/members", memberController.setUpRoutes());
 app.route("/likes", likeController.setUpRoutes());
