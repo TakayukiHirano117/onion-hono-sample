@@ -1,27 +1,27 @@
 import { z } from "zod";
 import { Context } from "hono";
 import { setCookie } from "hono/cookie";
-import { LoginMemberAppService } from "../../../ApplicationService/Member/login_member_app_service";
+import { LoginAppService } from "../../../ApplicationService/Auth/members/login_app_service";
 
-const loginMemberRequestSchema = z.object({
+const loginRequestSchema = z.object({
   email: z.string(),
   password: z.string(),
 });
 
 export class LoginController {
   constructor(
-    private readonly _loginMemberAppService: LoginMemberAppService
+    private readonly _loginAppService: LoginAppService
   ) { }
 
   async handle(c: Context) {
     const requestBody = await c.req.json();
-    const parseResult = loginMemberRequestSchema.safeParse(requestBody);
+    const parseResult = loginRequestSchema.safeParse(requestBody);
 
     if (!parseResult.success) {
       return c.json({ errors: parseResult.error.issues }, 422);
     }
 
-    const { sessionId, expiresAt, member } = await this._loginMemberAppService.execute(parseResult.data);
+    const { sessionId, expiresAt, member } = await this._loginAppService.execute(parseResult.data);
 
     setCookie(c, "session_id", sessionId, {
       httpOnly: true,
