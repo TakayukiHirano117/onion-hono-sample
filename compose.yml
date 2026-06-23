@@ -29,5 +29,13 @@ services:
       timeout: 5s
       retries: 5
 
+  mail:
+    image: axllent/mailpit:v1.30
+    ports:
+      - "1025:1025" # SMTPサーバー（プログラムからメールを送るポート）
+      - "8025:8025" # WEB管理画面（ブラウザでメールを確認するポート）
+    environment:
+      - MP_MAX_MESSAGES=100
+
 volumes:
   postgres_data:
