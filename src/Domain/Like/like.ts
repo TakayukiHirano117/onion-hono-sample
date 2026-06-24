@@ -1,3 +1,4 @@
+import { InvariantViolationError } from "../shared/exception/domain_error";
 import { UUID } from "../shared/vo/uuid";
 
 export class Like {
@@ -7,7 +8,7 @@ export class Like {
     private readonly _toMemberId: UUID,
   ) {
     if (_fromMemberId.value === _toMemberId.value) {
-      throw new Error("自分自身にはいいねできません。");
+      throw new InvariantViolationError("自分自身にはいいねできません。");
     }
   }
 

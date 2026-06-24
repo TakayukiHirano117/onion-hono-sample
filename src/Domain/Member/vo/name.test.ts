@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { ValidationError } from '../../shared/exception/domain_error'
 import { Name } from './name'
 
 describe('Name', () => {
@@ -8,10 +9,10 @@ describe('Name', () => {
   })
 
   it('名前の長さが最小文字数未満の場合にエラーが発生する', () => {
-    expect(() => new Name('')).toThrow('名前の長さが不正です。(最小2文字)')
+    expect(() => new Name('')).toThrow(ValidationError)
   })
 
   it('名前の長さが最大文字数を超えている場合にエラーが発生する', () => {
-    expect(() => new Name('a'.repeat(Name.MAX_NAME_LENGTH + 1))).toThrow('名前の長さが不正です。(最大50文字)')
+    expect(() => new Name('a'.repeat(Name.MAX_NAME_LENGTH + 1))).toThrow(ValidationError)
   })
 })

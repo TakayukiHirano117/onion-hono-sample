@@ -3,11 +3,21 @@ import { Member } from "../../Domain/Member/member";
 import { Email } from "../../Domain/shared/vo/email";
 import { UUID } from "../../Domain/shared/vo/uuid";
 import { Name } from "../../Domain/Member/vo/name";
+import { ConflictError } from "../../ApplicationService/shared/exception/application_error";
 import { db } from "../Database/database";
 import { resolveExecutor } from "../Database/executor";
 import type { MemberRow } from "../Database/types";
 import type { Kysely } from "kysely";
 import type { Database } from "../Database/types";
+
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "23505"
+  );
+}
 
 export class MemberRepositoryImpl implements IMemberRepository {
   constructor(private readonly _db: Kysely<Database> = db) {}
@@ -49,15 +59,22 @@ export class MemberRepositoryImpl implements IMemberRepository {
   async create(member: Member, passwordHash: string, tx?: unknown): Promise<void> {
     const executor = resolveExecutor(this._db, tx);
 
-    await executor
-      .insertInto("members")
-      .values({
-        id: member.id.value,
-        name: member.name.value,
-        email: member.email.value,
-        password_hash: passwordHash,
-      })
-      .execute();
+    try {
+      await executor
+        .insertInto("members")
+        .values({
+          id: member.id.value,
+          name: member.name.value,
+          email: member.email.value,
+          password_hash: passwordHash,
+        })
+        .execute();
+    } catch (error) {
+      if (isUniqueViolation(error)) {
+        throw new ConflictError("このメールアドレスは既に登録されています。");
+      }
+      throw error;
+    }
   }
 
   private toMember(row: MemberRow): Member {

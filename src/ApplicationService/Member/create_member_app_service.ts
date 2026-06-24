@@ -11,6 +11,7 @@ import { UUID } from "../../Domain/shared/vo/uuid";
 import type { ITransactionManager } from "../../Infra/shared/i_transaction_manager";
 import { UUIDGenerator } from "../../Infra/shared/uuid_generator";
 import { IPasswordHashGenerator } from "../../Infra/shared/i_password_hash_generator";
+import { ConflictError } from "../shared/exception/application_error";
 
 type CreateMemberInput = {
   name: string;
@@ -31,10 +32,16 @@ export class CreateMemberAppService {
   ) {}
 
   async execute(input: CreateMemberInput): Promise<void> {
+    const email = new Email(input.email);
+    const existingMember = await this._memberRepository.findByEmail(email);
+    if (existingMember) {
+      throw new ConflictError("このメールアドレスは既に登録されています。");
+    }
+
     const member = Member.create(
       new UUID(this._uuidGenerator.execute()),
       new Name(input.name),
-      new Email(input.email),
+      email,
     );
 
     const passwordHash = await this._passwordHashGenerator.execute(input.rawPassword);
@@ -47,7 +54,6 @@ export class CreateMemberAppService {
     );
 
     await this._transactionManager.runInTransaction(async (tx) => {
-      // [must]メンバー保存用DTOを作る
       await this._memberRepository.create(member, passwordHash, tx);
       await this._profileRepository.create(profile, tx);
     });

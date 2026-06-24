@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { ValidationError } from '../exception/domain_error'
 import { UUID } from './uuid'
 
 describe('UUID', () => {
@@ -8,6 +9,6 @@ describe('UUID', () => {
   })
 
   it('不正なUUIDでエラーが発生する', () => {
-    expect(() => new UUID('invalid-uuid')).toThrow('IDの形式が不正です。')
+    expect(() => new UUID('invalid-uuid')).toThrow(ValidationError)
   })
 })

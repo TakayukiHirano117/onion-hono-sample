@@ -1,7 +1,8 @@
+import { z } from "zod";
 import { Context } from "hono";
 import { Hono } from "hono";
-import { z } from "zod";
 import { SendLikeAppService } from "../../ApplicationService/Like/send_like_app_service";
+import { parseRequest } from "../shared/parse_request";
 
 const sendLikeRequestSchema = z.object({
   fromMemberId: z.string(),
@@ -21,22 +22,10 @@ export class LikeController {
 
   private async handleSendLike(c: Context) {
     const requestBody = await c.req.json();
-    const parseResult = sendLikeRequestSchema.safeParse(requestBody);
+    const input = parseRequest(sendLikeRequestSchema, requestBody);
 
-    if (!parseResult.success) {
-      return c.json({ errors: parseResult.error.issues }, 422);
-    }
+    await this._sendLikeAppService.execute(input);
 
-    try {
-      await this._sendLikeAppService.execute(parseResult.data);
-
-      return c.json({ status: "ok" }, 200);
-    } catch (error) {
-      if (error instanceof Error) {
-        return c.json({ error: error.message }, 400);
-      }
-
-      throw error;
-    }
+    return c.json({ status: "ok" }, 200);
   }
 }

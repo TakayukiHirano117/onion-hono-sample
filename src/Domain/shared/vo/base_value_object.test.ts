@@ -1,3 +1,4 @@
+import { ValidationError } from "../exception/domain_error"
 import { BaseValueObject } from "./base_value_object"
 import { describe, it, expect } from 'vitest'
 
@@ -8,7 +9,7 @@ class TestValueObject extends BaseValueObject<string> {
 
   protected validate(value: string): void {
     if (value !== 'test') {
-      throw new Error('value is not test')
+      throw new ValidationError('value is not test')
     }
   }
 }
@@ -20,6 +21,6 @@ describe('BaseValueObject', () => {
   })
 
   it('不正な値でエラーが発生する', () => {
-    expect(() => new TestValueObject('invalid')).toThrow('value is not test')
+    expect(() => new TestValueObject('invalid')).toThrow(ValidationError)
   })
 })

@@ -1,3 +1,5 @@
+import { ValidationError } from "../../shared/exception/domain_error";
+
 export class Gender {
   static readonly MALE = "male";
   static readonly FEMALE = "female";
@@ -18,7 +20,7 @@ export class Gender {
 
   private validate(value: string): void {
     if (!Gender.ALLOWED.includes(value as (typeof Gender.ALLOWED)[number])) {
-      throw new Error("性別の値が不正です。");
+      throw new ValidationError("性別の値が不正です。");
     }
   }
 

@@ -1,6 +1,7 @@
 import { getCookie } from "hono/cookie";
 import type { MiddlewareHandler } from "hono";
 import type { Kysely } from "kysely";
+import { UnauthorizedError } from "../../../ApplicationService/shared/exception/application_error";
 import { db } from "../../../Infra/Database/database";
 import type { Database } from "../../../Infra/Database/types";
 
@@ -10,7 +11,7 @@ export class AuthMiddleware {
   handle: MiddlewareHandler = async (c, next) => {
     const sessionId = getCookie(c, "session_id");
     if (!sessionId) {
-      return c.json({ error: "認証が必要です。" }, 401);
+      throw new UnauthorizedError("認証が必要です。");
     }
 
     const session = await this._db
@@ -21,7 +22,7 @@ export class AuthMiddleware {
       .executeTakeFirst();
 
     if (!session) {
-      return c.json({ error: "認証が必要です。" }, 401);
+      throw new UnauthorizedError("認証が必要です。");
     }
 
     await next();

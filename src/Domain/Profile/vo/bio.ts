@@ -1,3 +1,4 @@
+import { ValidationError } from "../../shared/exception/domain_error";
 import { BaseValueObject } from "../../shared/vo/base_value_object";
 
 export type BioValue = string;
@@ -11,15 +12,15 @@ export class Bio extends BaseValueObject<BioValue> {
 
   protected validate(value: BioValue): void {
     if (value.length > Bio.MAX_BIO_LENGTH) {
-      throw new Error(`自己紹介の長さが不正です。(最大${Bio.MAX_BIO_LENGTH}文字)`)
+      throw new ValidationError(`自己紹介の長さが不正です。(最大${Bio.MAX_BIO_LENGTH}文字)`)
     }
 
     if (value.length < Bio.MIN_BIO_LENGTH) {
-      throw new Error(`自己紹介の長さが不正です。(最小${Bio.MIN_BIO_LENGTH}文字)`)
+      throw new ValidationError(`自己紹介の長さが不正です。(最小${Bio.MIN_BIO_LENGTH}文字)`)
     }
 
     if (typeof value !== 'string') {
-      throw new Error('自己紹介は文字列でなければなりません。')
+      throw new ValidationError('自己紹介は文字列でなければなりません。')
     }
   }
 }
