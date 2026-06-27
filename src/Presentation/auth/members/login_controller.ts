@@ -9,10 +9,15 @@ const loginRequestSchema = z.object({
   password: z.string(),
 });
 
+type LoginCookieConfig = {
+  secure: boolean;
+};
+
 export class LoginController {
   constructor(
-    private readonly _loginAppService: LoginAppService
-  ) { }
+    private readonly _loginAppService: LoginAppService,
+    private readonly _loginCookieConfig: LoginCookieConfig,
+  ) {}
 
   async handle(c: Context) {
     const requestBody = await c.req.json();
@@ -22,7 +27,7 @@ export class LoginController {
 
     setCookie(c, "session_id", sessionId, {
       httpOnly: true,
-      // secure: true,
+      secure: this._loginCookieConfig.secure,
       sameSite: "Lax",
       expires: expiresAt,
       path: "/",

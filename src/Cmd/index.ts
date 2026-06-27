@@ -30,6 +30,7 @@ import { AuthMiddleware } from "./middlewares/members/auth_middeware";
 import { LogoutController } from "../Presentation/auth/members/logout_controller";
 import { LogoutAppService } from "../ApplicationService/Auth/members/logout_app_service";
 import { SessionDeleteManager } from "../Infra/shared/session_delete_manager";
+import { config } from "./config";
 
 const STATUS_BY_CODE: Record<ApplicationErrorCode, ContentfulStatusCode> = {
   [ApplicationErrorCode.BAD_REQUEST]: 400,
@@ -88,7 +89,7 @@ const memberController = new MemberController(
 const likeController = new LikeController(sendLikeAppService);
 
 const authController = new AuthController(
-  new LoginController(loginAppService),
+  new LoginController(loginAppService, config.auth.cookie),
   new LogoutController(logoutAppService),
 );
 
