@@ -6,6 +6,7 @@ COPY package.json ./
 RUN bun install
 
 COPY tsconfig.json ./
+COPY config ./config
 COPY src ./src
 
 ENV PORT=3000
