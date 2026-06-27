@@ -2,6 +2,10 @@
   "name": "onion-hono-sample",
   "scripts": {
     "dev": "bun run --hot src/Cmd/index.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
     "migrate": "bun run src/Infra/Database/migrate.ts",
     "test": "bunx --bun vitest",
     "test:ui": "bunx --bun vitest --ui",
@@ -21,8 +25,14 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/bun": "latest",
     "@types/pg": "^8.20.0",
-    "typescript": "^5.9.2"
+    "eslint": "^10.6.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.7.0",
+    "prettier": "^3.8.5",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.62.0"
   }
 }
