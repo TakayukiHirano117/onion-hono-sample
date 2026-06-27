@@ -6,7 +6,7 @@ import { db } from "../Database/database";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
 export class LoginSessionGeneratorImpl implements ILoginSessionGenerator {
-  constructor(private readonly _db: Kysely<Database> = db) {}
+  constructor(private readonly _db: Kysely<Database> = db) { }
 
   async execute(
     uuid: string,

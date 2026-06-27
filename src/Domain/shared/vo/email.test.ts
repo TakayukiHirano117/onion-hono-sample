@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { ValidationError } from '../exception/domain_error'
 import { Email } from './email'
 
 describe('Email', () => {
@@ -8,6 +9,6 @@ describe('Email', () => {
   })
 
   it('不正なメールアドレスでエラーが発生する', () => {
-    expect(() => new Email('invalid-email')).toThrow('メールアドレスの形式が不正です。')
+    expect(() => new Email('invalid-email')).toThrow(ValidationError)
   })
 })

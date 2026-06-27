@@ -1,6 +1,7 @@
 import { Context } from "hono";
 import { z } from "zod";
 import { CreateMemberAppService } from "../../ApplicationService/Member/create_member_app_service";
+import { parseRequest } from "../shared/parse_request";
 
 const createMemberRequestSchema = z.object({
   name: z.string(),
@@ -18,13 +19,9 @@ export class CreateMemberController {
 
   async handle(c: Context) {
     const requestBody = await c.req.json();
-    const parseResult = createMemberRequestSchema.safeParse(requestBody);
+    const input = parseRequest(createMemberRequestSchema, requestBody);
 
-    if (!parseResult.success) {
-      return c.json({ errors: parseResult.error.issues }, 422);
-    }
-
-    await this._createMemberAppService.execute(parseResult.data);
+    await this._createMemberAppService.execute(input);
 
     return c.json({ status: "ok" }, 200);
   }

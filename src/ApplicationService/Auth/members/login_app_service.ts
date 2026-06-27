@@ -6,6 +6,7 @@ import { UUID } from "../../../Domain/shared/vo/uuid";
 import { ILoginSessionGenerator } from "../../../Infra/shared/i_login_session_generator";
 import { UUIDGenerator } from "../../../Infra/shared/uuid_generator";
 import { IFindByEmailForLoginQueryService } from "../../../ApplicationService/Member/i_find_by_email_for_login_query_service";
+import { UnauthorizedError } from "../../shared/exception/application_error";
 
 type LoginInput = {
   email: string;
@@ -24,15 +25,13 @@ export class LoginAppService {
     const email = new Email(input.email);
     const result = await this._findByEmailForLoginQueryService.execute(email);
     if (!result) {
-      throw new Error("メールアドレスが存在しません。");
+      throw new UnauthorizedError("メールアドレスが正しくありません。");
     }
 
     const isVerified = await this._passwordVerificationDomainService.execute(input.password, result.password_hash);
     if (!isVerified) {
-      throw new Error("パスワードが不正です。");
+      throw new UnauthorizedError("パスワードが正しくありません。");
     }
-
-    // TODO: すでにsessionが存在する場合はログイン済みとし、sessionを更新する。
 
     const uuid = this._uuidGenerator.execute();
     const session = await this._loginSessionGenerator.execute(uuid, result.id);

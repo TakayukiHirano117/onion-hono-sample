@@ -47,3 +47,12 @@ alwaysApply: false
   - Presentation では「必須パラメータが来ているか」「型が大まかに合うか」程度に留める（例: `z.string()`）。
 - 1 controller は 1 action とする。
 - 関心ごとに親 controller を作成し、その中で DI とルーティング設定を行う。
+
+## 例外処理
+
+- Domain 層は `DomainError`（`ValidationError` / `InvariantViolationError`）を throw する。HTTP ステータスコードは持たない。
+- ApplicationService 層は `ApplicationError`（`BadRequestError` / `UnauthorizedError` / `NotFoundError` / `ConflictError`）を throw する。ユースケース内で try/catch は書かない。
+- Domain 例外（`DomainError`）はそのまま伝播させ、Cmd 層の `onError` で `mapDomainError` により HTTP レスポンスに変換する。
+- Presentation 層は成功レスポンス以外を原則 throw し、Controller 内で try/catch しない。Zod 入力チェックは `parseRequest` で `BadRequestError` に変換する。
+- Cmd 層の `app.onError` が HTTP ステータスと統一 JSON レスポンスへの変換を担う唯一の場所とする。
+- Infra 層の DB 制約違反などは、可能な限り Application 層で事前チェックし、フォールバックとして Repository 実装で `ApplicationError` に変換する。

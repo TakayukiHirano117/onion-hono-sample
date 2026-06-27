@@ -2,6 +2,7 @@ import { z } from "zod";
 import { Context } from "hono";
 import { setCookie } from "hono/cookie";
 import { LoginAppService } from "../../../ApplicationService/Auth/members/login_app_service";
+import { parseRequest } from "../../shared/parse_request";
 
 const loginRequestSchema = z.object({
   email: z.string(),
@@ -15,20 +16,16 @@ export class LoginController {
 
   async handle(c: Context) {
     const requestBody = await c.req.json();
-    const parseResult = loginRequestSchema.safeParse(requestBody);
+    const input = parseRequest(loginRequestSchema, requestBody);
 
-    if (!parseResult.success) {
-      return c.json({ errors: parseResult.error.issues }, 422);
-    }
-
-    const { sessionId, expiresAt, member } = await this._loginAppService.execute(parseResult.data);
+    const { sessionId, expiresAt, member } = await this._loginAppService.execute(input);
 
     setCookie(c, "session_id", sessionId, {
-      httpOnly: true, // javascriptからcookieにアクセスできないようにする
-      secure: true, // httpsでしかcookieを送信できないようにする
-      sameSite: "Lax", // 同じサイトからのリクエストのみcookieを送信できるようにする
-      expires: expiresAt, // 有効期限
-      path: "/", // 全てのパスでcookieを送信できるようにする
+      httpOnly: true,
+      // secure: true,
+      sameSite: "Lax",
+      expires: expiresAt,
+      path: "/",
     });
 
     return c.json(

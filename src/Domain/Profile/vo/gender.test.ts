@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { ValidationError } from '../../shared/exception/domain_error'
 import { Gender } from './gender'
 
 describe('Genger', () => {
@@ -8,6 +9,6 @@ describe('Genger', () => {
   })
 
   it('不正な性別でエラーが発生する', () => {
-    expect(() => new Gender('invalid')).toThrow('性別の値が不正です。')
+    expect(() => new Gender('invalid')).toThrow(ValidationError)
   })
 })

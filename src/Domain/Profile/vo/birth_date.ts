@@ -1,3 +1,5 @@
+import { ValidationError } from "../../shared/exception/domain_error";
+
 export class BirthDate {
   private readonly _value: string;
 
@@ -8,16 +10,16 @@ export class BirthDate {
 
   private validate(value: string): void {
     if (!/^\d{4}\/\d{2}\/\d{2}$/.test(value)) {
-      throw new Error("生年月日の形式が不正です。");
+      throw new ValidationError("生年月日の形式が不正です。");
     }
 
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {
-      throw new Error("生年月日の形式が不正です。");
+      throw new ValidationError("生年月日の形式が不正です。");
     }
 
     if (date > new Date()) {
-      throw new Error("生年月日は未来の日付にできません。");
+      throw new ValidationError("生年月日は未来の日付にできません。");
     }
   }
 

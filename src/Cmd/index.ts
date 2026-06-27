@@ -1,4 +1,12 @@
 import { Hono, type Context } from "hono";
+import { logger } from "hono/logger";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
+import {
+  ApplicationError,
+  ApplicationErrorCode,
+} from "../ApplicationService/shared/exception/application_error";
+import { mapDomainError } from "../ApplicationService/shared/exception/map_domain_error";
+import { DomainError } from "../Domain/shared/exception/domain_error";
 import { MemberController } from "../Presentation/Member/member_controller";
 import { FindAllMemberController } from "../Presentation/Member/find_all_member_controller";
 import { FindAllMemberAppService } from "../ApplicationService/Member/find_all_member_app_service";
@@ -23,9 +31,17 @@ import { LogoutController } from "../Presentation/auth/members/logout_controller
 import { LogoutAppService } from "../ApplicationService/Auth/members/logout_app_service";
 import { SessionDeleteManager } from "../Infra/shared/session_delete_manager";
 
+const STATUS_BY_CODE: Record<ApplicationErrorCode, ContentfulStatusCode> = {
+  [ApplicationErrorCode.BAD_REQUEST]: 400,
+  [ApplicationErrorCode.UNAUTHORIZED]: 401,
+  [ApplicationErrorCode.NOT_FOUND]: 404,
+  [ApplicationErrorCode.CONFLICT]: 409,
+};
+
 const app = new Hono().basePath("/api/v1");
 
-// DIコンテナ作るかべつファイルにルーティングを逃してここで読み込むか
+app.use("*", logger());
+
 const memberRepository = new MemberRepositoryImpl();
 const profileRepository = new ProfileRepositoryImpl();
 const likeRepository = new LikeRepositoryImpl();
@@ -59,7 +75,6 @@ const sendLikeAppService = new SendLikeAppService(
   uuidGenerator,
 );
 
-// health check
 app.get("/", (c: Context) => {
   return c.text("Hello Hono!");
 });
@@ -83,5 +98,59 @@ app.use("/likes/*", authMiddleware.handle);
 app.route("/members", memberController.setUpRoutes());
 app.route("/likes", likeController.setUpRoutes());
 app.route("/auth", authController.setUpRoutes());
+
+app.notFound((c) => {
+  return c.json(
+    {
+      success: false,
+      error: ApplicationErrorCode.NOT_FOUND,
+      message: "リソースが見つかりません。",
+    },
+    404,
+  );
+});
+
+app.onError((err, c) => {
+  const applicationError =
+    err instanceof ApplicationError
+      ? err
+      : err instanceof DomainError
+        ? mapDomainError(err)
+        : null;
+
+  if (applicationError) {
+    console.warn("[ApplicationError]", {
+      method: c.req.method,
+      path: c.req.path,
+      code: applicationError.code,
+      message: applicationError.message,
+    });
+
+    return c.json(
+      {
+        success: false,
+        error: applicationError.code,
+        message: applicationError.message,
+        ...(applicationError.details !== undefined ? { details: applicationError.details } : {}),
+      },
+      STATUS_BY_CODE[applicationError.code],
+    );
+  }
+
+  console.error("[Unhandled]", {
+    method: c.req.method,
+    path: c.req.path,
+    error: err,
+  });
+
+  return c.json(
+    {
+      success: false,
+      error: "InternalServerError",
+      message: "予期せぬエラーが発生しました。時間をおいて再度お試しください。",
+    },
+    500,
+  );
+});
 
 export default app;
