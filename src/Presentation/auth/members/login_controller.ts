@@ -22,7 +22,7 @@ export class LoginController {
 
     setCookie(c, "session_id", sessionId, {
       httpOnly: true,
-      secure: true,
+      // secure: true,
       sameSite: "Lax",
       expires: expiresAt,
       path: "/",

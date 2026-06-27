@@ -25,12 +25,12 @@ export class LoginAppService {
     const email = new Email(input.email);
     const result = await this._findByEmailForLoginQueryService.execute(email);
     if (!result) {
-      throw new UnauthorizedError("メールアドレスまたはパスワードが正しくありません。");
+      throw new UnauthorizedError("メールアドレスが正しくありません。");
     }
 
     const isVerified = await this._passwordVerificationDomainService.execute(input.password, result.password_hash);
     if (!isVerified) {
-      throw new UnauthorizedError("メールアドレスまたはパスワードが正しくありません。");
+      throw new UnauthorizedError("パスワードが正しくありません。");
     }
 
     const uuid = this._uuidGenerator.execute();

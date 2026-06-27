@@ -1,4 +1,5 @@
 import { Hono, type Context } from "hono";
+import { logger } from "hono/logger";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import {
   ApplicationError,
@@ -38,6 +39,8 @@ const STATUS_BY_CODE: Record<ApplicationErrorCode, ContentfulStatusCode> = {
 };
 
 const app = new Hono().basePath("/api/v1");
+
+app.use("*", logger());
 
 const memberRepository = new MemberRepositoryImpl();
 const profileRepository = new ProfileRepositoryImpl();
