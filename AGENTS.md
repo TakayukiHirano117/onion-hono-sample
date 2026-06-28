@@ -37,7 +37,8 @@
 - Presentation から Domain / Infra を直接 import せず、ApplicationService 経由で接続します。
 - Infra は Presentation / Cmd に依存させません。
 - `as any` は使わず、型を正しく表現してください。
-- 例外変換は `src/Cmd/create_app.ts` の `app.onError` に集約します。
+- アプリ組み立て（DI、ルーティング、エラーハンドリング）のエントリーポイントは `src/Cmd/index.ts` とする。`create_app.ts` などへリネームしない。
+- 例外変換は `src/Cmd/index.ts` の `app.onError` に集約します。
 - Controller 内や ApplicationService 内に不要な try/catch を増やさないでください。
 - 本質的な実装と関係ないリファクタリングやフォーマット変更は避けます。
 

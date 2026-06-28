@@ -120,7 +120,7 @@ src/
 │   ├── config/
 │   ├── bun.ts
 │   ├── worker.ts
-│   ├── create_app.ts
+│   ├── index.ts
 │   └── middlewares/
 ```
 

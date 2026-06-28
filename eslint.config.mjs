@@ -45,42 +45,52 @@ export default tseslint.config(
     },
   },
   {
-    files: ["src/Domain/**/*.ts"],
+    files: ["src/domain/**/*.ts"],
     rules: restrictedLayerImports([
       {
-        group: ["**/ApplicationService/**", "**/Infra/**", "**/Presentation/**", "**/Cmd/**"],
+        group: ["**/application_service/**", "**/infra/**", "**/presentation/**", "**/cmd/**"],
         message:
           "Domain 層は他の層に依存しないでください。Domain 内の型や interface に閉じて表現してください。",
       },
     ]),
   },
   {
-    files: ["src/ApplicationService/**/*.ts"],
+    files: ["src/application_service/**/*.ts"],
     rules: restrictedLayerImports([
       {
-        group: ["**/Presentation/**", "**/Cmd/**"],
+        group: ["**/presentation/**", "**/cmd/**"],
         message:
           "ApplicationService 層は Presentation / Cmd 層に依存しないでください。ユースケースは Domain と Infra の抽象に依存してください。",
       },
     ]),
   },
   {
-    files: ["src/Infra/**/*.ts"],
+    files: ["src/infra/**/*.ts"],
     rules: restrictedLayerImports([
       {
-        group: ["**/Presentation/**", "**/Cmd/**"],
+        group: ["**/presentation/**", "**/cmd/**"],
         message:
           "Infra 層は Presentation / Cmd 層に依存しないでください。技術詳細の実装に閉じてください。",
       },
     ]),
   },
   {
-    files: ["src/Presentation/**/*.ts"],
+    files: ["src/presentation/**/*.ts"],
     rules: restrictedLayerImports([
       {
-        group: ["**/Domain/**", "**/Infra/**", "**/Cmd/**"],
+        group: ["**/domain/**", "**/infra/**"],
         message:
-          "Presentation 層は Domain / Infra / Cmd 層に直接依存しないでください。ApplicationService 経由で接続してください。",
+          "Presentation 層は Domain / Infra 層に直接依存しないでください。ApplicationService 経由で接続してください。",
+      },
+      {
+        group: [
+          "**/cmd/bun.ts",
+          "**/cmd/worker.ts",
+          "**/cmd/index.ts",
+          "**/cmd/config/**",
+        ],
+        message:
+          "Presentation 層は Cmd 層に直接依存しないでください。middleware の型参照のみ例外（`**/cmd/middlewares/**`）。",
       },
     ]),
   },

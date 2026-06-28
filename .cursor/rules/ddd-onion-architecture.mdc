@@ -47,6 +47,13 @@ alwaysApply: false
   - Presentation では「必須パラメータが来ているか」「型が大まかに合うか」程度に留める（例: `z.string()`）。
 - 1 controller は 1 action とする。
 - 関心ごとに親 controller を作成し、その中で DI とルーティング設定を行う。
+- ルート単位の middleware 配線の都合上、`**/Cmd/middlewares/**` からの import のみ例外とする。それ以外の Cmd 層への直接依存は禁止する。
+
+## Cmd
+
+- アプリ組み立て（DI、ルーティング、共通エラーハンドリング）のエントリーポイントは `src/Cmd/index.ts` とする。
+- `create_app.ts` などへ勝手にリネームしない。`bun.ts` / `worker.ts` はランタイム別の起動入口として `index.ts` を import する。
+- middleware は `src/Cmd/middlewares/` 以下に置く。
 
 ## 例外処理
 

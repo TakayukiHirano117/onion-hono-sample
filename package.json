@@ -1,14 +1,14 @@
 {
   "name": "onion-hono-sample",
   "scripts": {
-    "dev": "bun run --hot src/Cmd/bun.ts",
+    "dev": "bun run --hot src/cmd/bun.ts",
     "dev:worker": "wrangler dev",
     "deploy": "wrangler deploy",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "migrate": "bun run src/Infra/Database/migrate.ts",
+    "migrate": "bun run src/infra/database/migrate.ts",
     "test": "bunx --bun vitest",
     "test:ui": "bunx --bun vitest --ui",
     "install:lib": "docker compose run --rm api bun install && bun install"
