@@ -6,10 +6,6 @@ export class FindAllMemberController {
 
   async handle(c: Context) {
     const members = await this._findAllMemberAppService.execute();
-    return c.json(members.map((member) => ({
-      id: member.id.value,
-      name: member.name.value,
-      email: member.email.value,
-    })));
+    return c.json(members);
   }
 }
