@@ -10,7 +10,9 @@
 ## Commands
 
 - 依存関係の追加・更新: `bun install`
-- 開発サーバー起動: `bun run dev`
+- 開発サーバー起動（Bun / Docker）: `bun run dev`
+- Workers ローカル起動: `bun run dev:worker`
+- Cloudflare へデプロイ: `bun run deploy`
 - テスト実行: `bun run test`
 - Lint: `bun run lint`
 - Format 確認: `bun run format:check`
@@ -35,6 +37,7 @@
 - Presentation から Domain / Infra を直接 import せず、ApplicationService 経由で接続します。
 - Infra は Presentation / Cmd に依存させません。
 - `as any` は使わず、型を正しく表現してください。
+- アプリ組み立て（DI、ルーティング、エラーハンドリング）のエントリーポイントは `src/Cmd/index.ts` とする。`create_app.ts` などへリネームしない。
 - 例外変換は `src/Cmd/index.ts` の `app.onError` に集約します。
 - Controller 内や ApplicationService 内に不要な try/catch を増やさないでください。
 - 本質的な実装と関係ないリファクタリングやフォーマット変更は避けます。

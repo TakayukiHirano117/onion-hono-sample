@@ -1,5 +1,8 @@
 - [ ] DIコンテナ
-- [ ] DTO
-- [x] エラーハンドリング
 - [ ] HTTPOnlyCookieからSupabaseでの管理に移行。その前に6桁の暗証番号方式も試したい。
   - [ ] Dockerにメールサーバー立てる
+- [ ] ユースケース層にDTOを作る
+  - [ ] プレゼンテーション層でドメインの依存が発生するので。
+- [ ] ローカルでactions試せる様にしたい。
+- [ ] 重複ログインさせたくない
+- [x] Cloudflare Workers にデプロイ（Hyperdrive + Supabase）

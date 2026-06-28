@@ -1,20 +1,22 @@
 {
   "name": "onion-hono-sample",
   "scripts": {
-    "dev": "bun run --hot src/Cmd/index.ts",
+    "dev": "bun run --hot src/cmd/bun.ts",
+    "dev:worker": "wrangler dev",
+    "deploy": "wrangler deploy",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "migrate": "bun run src/Infra/Database/migrate.ts",
+    "migrate": "bun run src/infra/database/migrate.ts",
     "test": "bunx --bun vitest",
     "test:ui": "bunx --bun vitest --ui",
     "install:lib": "docker compose run --rm api bun install && bun install"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.6.1",
-    "@types/bcrypt": "^6.0.0",
-    "bcrypt": "^6.0.0",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.2",
     "config": "^4.4.1",
     "hono": "^4.12.25",
     "js-yaml": "^5.2.0",
@@ -25,6 +27,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250620.0",
     "@eslint/js": "^10.0.1",
     "@types/bun": "latest",
     "@types/pg": "^8.20.0",
@@ -33,6 +36,8 @@
     "globals": "^17.7.0",
     "prettier": "^3.8.5",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.62.0"
+    "typescript-eslint": "^8.62.0",
+    "vitest": "^4.1.9",
+    "wrangler": "^4.22.0"
   }
 }

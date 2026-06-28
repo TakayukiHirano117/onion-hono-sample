@@ -1,4 +1,4 @@
-.PHONY: help up up-d up-build down build logs ps shell db-shell migrate setup
+.PHONY: help up up-d up-build down build logs ps shell db-shell migrate test lint lint-fix setup
 
 COMPOSE := docker compose
 
@@ -36,5 +36,14 @@ db-shell: ## PostgreSQL に接続
 
 migrate: ## Kysely マイグレーションを実行
 	$(COMPOSE) run --rm api bun run migrate
+
+test: ## 全てのテストを実行
+	bun run test
+
+lint: ## ESLint を実行
+	bun run lint
+
+lint-fix: ## ESLint を実行して自動修正
+	bun run lint:fix
 
 setup: build up-d migrate ## 初回セットアップ（build → 起動 → migrate）
