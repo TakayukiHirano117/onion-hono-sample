@@ -2,10 +2,9 @@ import { IFindByEmailForLoginQueryService } from "../../ApplicationService/Membe
 import { Email } from "../../Domain/shared/vo/email";
 import type { Kysely } from "kysely";
 import type { Database } from "../Database/types";
-import { db } from "../Database/database";
 
 export class FindByEmailForLoginQueryServiceImpl implements IFindByEmailForLoginQueryService {
-  constructor(private readonly _db: Kysely<Database> = db) { }
+  constructor(private readonly _db: Kysely<Database>) {}
 
   async execute(email: Email): Promise<{
     id: string;

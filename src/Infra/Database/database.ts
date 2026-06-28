@@ -2,18 +2,24 @@ import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 import type { Database } from "./types";
 
-const connectionString = process.env.DATABASE_URL;
+export function createDb(connectionString: string): Kysely<Database> {
+  const dialect = new PostgresDialect({
+    pool: new Pool({
+      connectionString,
+    }),
+  });
 
-if (!connectionString) {
-  throw new Error("DATABASE_URL is not set");
+  return new Kysely<Database>({
+    dialect,
+  });
 }
 
-const dialect = new PostgresDialect({
-  pool: new Pool({
-    connectionString,
-  }),
-});
+export function createDbFromDatabaseUrl(): Kysely<Database> {
+  const connectionString = process.env.DATABASE_URL;
 
-export const db = new Kysely<Database>({
-  dialect,
-});
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is not set");
+  }
+
+  return createDb(connectionString);
+}

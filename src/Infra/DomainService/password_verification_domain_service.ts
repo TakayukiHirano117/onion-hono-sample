@@ -1,5 +1,5 @@
 import { IPasswordVerificationDomainService } from "../../Domain/Member/i_password_verification_domain_service";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export class PasswordVerificationDomainService implements IPasswordVerificationDomainService {
   constructor(

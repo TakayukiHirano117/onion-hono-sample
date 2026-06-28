@@ -1,0 +1,35 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Vitest: Current File",
+      "type": "shell",
+      "command": "bunx",
+      "args": ["--bun", "vitest", "run", "${relativeFile}"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Vitest: Current Line",
+      "type": "shell",
+      "command": "bunx",
+      "args": ["--bun", "vitest", "run", "${relativeFile}:${lineNumber}"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    }
+  ]
+}

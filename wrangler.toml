@@ -1,0 +1,17 @@
+name = "onion-hono-api"
+main = "src/Cmd/worker.ts"
+compatibility_date = "2026-06-20"
+compatibility_flags = ["nodejs_compat"]
+
+# Supabase 接続後に Hyperdrive を作成し、id を差し替えてください。
+# npx wrangler hyperdrive create onion-hono-db --connection-string="<supabase-connection-string>"
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "REPLACE_WITH_HYPERDRIVE_ID"
+
+[vars]
+AUTH_COOKIE_SECURE = "true"
+
+[env.dev]
+[env.dev.vars]
+AUTH_COOKIE_SECURE = "false"

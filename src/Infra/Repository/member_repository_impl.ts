@@ -4,7 +4,6 @@ import { Email } from "../../Domain/shared/vo/email";
 import { UUID } from "../../Domain/shared/vo/uuid";
 import { Name } from "../../Domain/Member/vo/name";
 import { ConflictError } from "../../ApplicationService/shared/exception/application_error";
-import { db } from "../Database/database";
 import { resolveExecutor } from "../Database/executor";
 import type { MemberRow } from "../Database/types";
 import type { Kysely } from "kysely";
@@ -20,7 +19,7 @@ function isUniqueViolation(error: unknown): boolean {
 }
 
 export class MemberRepositoryImpl implements IMemberRepository {
-  constructor(private readonly _db: Kysely<Database> = db) {}
+  constructor(private readonly _db: Kysely<Database>) {}
 
   async findAll(): Promise<Member[]> {
     const rows = await this._db.selectFrom("members").selectAll().execute();

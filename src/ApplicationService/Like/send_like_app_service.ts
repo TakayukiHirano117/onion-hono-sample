@@ -1,7 +1,11 @@
 import { ILikeRepository } from "../../Domain/Like/i_like_repository";
 import { Like } from "../../Domain/Like/like";
+import { IMatchingDomainService } from "../../Domain/Matching/i_matching_domain_service";
+import { IMatchingRepository } from "../../Domain/Matching/i_matching_repository";
+import { Matching } from "../../Domain/Matching/matching";
 import { IMemberRepository } from "../../Domain/Member/i_member_repository";
 import { UUID } from "../../Domain/shared/vo/uuid";
+import type { ITransactionManager } from "../../Infra/shared/i_transaction_manager";
 import { UUIDGenerator } from "../../Infra/shared/uuid_generator";
 import {
   BadRequestError,
@@ -18,6 +22,9 @@ export class SendLikeAppService {
   constructor(
     private readonly _likeRepository: ILikeRepository,
     private readonly _memberRepository: IMemberRepository,
+    private readonly _matchingRepository: IMatchingRepository,
+    private readonly _matchingDomainService: IMatchingDomainService,
+    private readonly _transactionManager: ITransactionManager,
     private readonly _uuidGenerator: UUIDGenerator
   ) {}
 
@@ -54,6 +61,24 @@ export class SendLikeAppService {
       throw new ConflictError("すでにいいねを送信しています。");
     }
 
-    await this._likeRepository.create(like);
+    await this._transactionManager.runInTransaction(async (tx) => {
+      await this._likeRepository.create(like, tx);
+
+      const receivedLike = await this._likeRepository.findByMembers(
+        toMemberId,
+        fromMemberId,
+        tx,
+      );
+      if (!this._matchingDomainService.isMatched(like, receivedLike)) {
+        return;
+      }
+
+      const matching = Matching.create(
+        new UUID(this._uuidGenerator.execute()),
+        fromMemberId,
+        toMemberId,
+      );
+      await this._matchingRepository.create(matching, tx);
+    });
   }
 }

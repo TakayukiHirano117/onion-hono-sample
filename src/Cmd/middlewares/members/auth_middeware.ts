@@ -2,11 +2,10 @@ import { getCookie } from "hono/cookie";
 import type { MiddlewareHandler } from "hono";
 import type { Kysely } from "kysely";
 import { UnauthorizedError } from "../../../ApplicationService/shared/exception/application_error";
-import { db } from "../../../Infra/Database/database";
 import type { Database } from "../../../Infra/Database/types";
 
 export class AuthMiddleware {
-  constructor(private readonly _db: Kysely<Database> = db) {}
+  constructor(private readonly _db: Kysely<Database>) {}
 
   handle: MiddlewareHandler = async (c, next) => {
     const sessionId = getCookie(c, "session_id");

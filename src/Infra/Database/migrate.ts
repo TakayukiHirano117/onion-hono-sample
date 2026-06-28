@@ -1,9 +1,10 @@
 import path from "path";
 import { promises as fs } from "fs";
 import { FileMigrationProvider, Migrator } from "kysely/migration";
-import { db } from "./database";
+import { createDbFromDatabaseUrl } from "./database";
 
 async function migrateToLatest() {
+  const db = createDbFromDatabaseUrl();
   const migrator = new Migrator({
     db,
     provider: new FileMigrationProvider({

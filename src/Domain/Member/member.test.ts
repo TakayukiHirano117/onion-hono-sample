@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { Member } from './member'
-import { UUIDGenerator } from '../../Infra/shared/uuid_generator'
 import { UUID } from '../shared/vo/uuid'
 import { Name } from './vo/name'
 import { Email } from '../shared/vo/email'
@@ -12,7 +11,7 @@ describe('Member', () => {
   let email: Email
 
   beforeEach(() => {
-    uuid = new UUID(UUIDGenerator.generate())
+    uuid = new UUID('123e4567-e89b-12d3-a456-426614174000')
     name = new Name('test')
     email = new Email('test@example.com')
 

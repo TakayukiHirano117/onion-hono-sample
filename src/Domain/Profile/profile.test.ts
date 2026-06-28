@@ -7,21 +7,33 @@ import { BirthDate } from './vo/birth_date'
 
 describe('Profile', () => {
   it('正しいプロフィールでインスタンス化できる', () => {
+    const memberId = new UUID('123e4567-e89b-12d3-a456-426614174000')
+    const bio = new Bio('自己紹介')
+    const gender = new Gender('male')
+    const birthDate = new BirthDate('1990/01/01')
+
     const profile = new Profile(
-      new UUID('123e4567-e89b-12d3-a456-426614174000'),
-      new Bio('自己紹介'),
-      new Gender('male'),
-      new BirthDate('1990-01-01'),
+      memberId,
+      bio,
+      gender,
+      birthDate,
     )
+
     expect(profile).toBeInstanceOf(Profile)
+    expect(profile.memberId).toBe(memberId)
+    expect(profile.bio).toBe(bio)
+    expect(profile.gender).toBe(gender)
+    expect(profile.birthDate).toBe(birthDate)
   })
 
-  it('不正なプロフィールでエラーが発生する', () => {
-    expect(() => new Profile(
-      new UUID('123e4567-e89b-12d3-a456-426614174000'),
-      new Bio('自己紹介'),
-      new Gender('male'),
-      new BirthDate('1990-01-01'),
-    )).toThrow('プロフィールの形式が不正です。')
+  it('createでインスタンス化できる', () => {
+    const memberId = new UUID('123e4567-e89b-12d3-a456-426614174000')
+    const bio = new Bio('自己紹介')
+    const gender = new Gender('male')
+    const birthDate = new BirthDate('1990/01/01')
+
+    const profile = Profile.create(memberId, bio, gender, birthDate)
+
+    expect(profile).toBeInstanceOf(Profile)
   })
 })

@@ -1,12 +1,11 @@
 import { ILoginSessionGenerator } from "./i_login_session_generator";
 import type { Kysely } from "kysely";
 import type { Database } from "../Database/types";
-import { db } from "../Database/database";
 
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
 export class LoginSessionGeneratorImpl implements ILoginSessionGenerator {
-  constructor(private readonly _db: Kysely<Database> = db) { }
+  constructor(private readonly _db: Kysely<Database>) {}
 
   async execute(
     uuid: string,

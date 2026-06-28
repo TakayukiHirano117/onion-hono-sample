@@ -16,13 +16,6 @@ export class Like {
     return new Like(id, fromMemberId, toMemberId);
   }
 
-  isMutualWith(other: Like): boolean {
-    return (
-      this._fromMemberId.value === other.toMemberId.value &&
-      this._toMemberId.value === other.fromMemberId.value
-    );
-  }
-
   get id(): UUID {
     return this._id;
   }

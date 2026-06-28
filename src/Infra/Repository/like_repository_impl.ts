@@ -1,13 +1,12 @@
 import { ILikeRepository } from "../../Domain/Like/i_like_repository";
 import { Like } from "../../Domain/Like/like";
 import { UUID } from "../../Domain/shared/vo/uuid";
-import { db } from "../Database/database";
 import { resolveExecutor } from "../Database/executor";
-import type { Database } from "../Database/types";
+import type { Database, LikeRow } from "../Database/types";
 import type { Kysely } from "kysely";
 
 export class LikeRepositoryImpl implements ILikeRepository {
-  constructor(private readonly _db: Kysely<Database> = db) {}
+  constructor(private readonly _db: Kysely<Database>) {}
 
   async create(like: Like, tx?: unknown): Promise<void> {
     const executor = resolveExecutor(this._db, tx);
@@ -33,6 +32,22 @@ export class LikeRepositoryImpl implements ILikeRepository {
     return row !== undefined;
   }
 
+  async findByMembers(fromMemberId: UUID, toMemberId: UUID, tx?: unknown): Promise<Like | null> {
+    const executor = resolveExecutor(this._db, tx);
+    const row = await executor
+      .selectFrom("likes")
+      .selectAll()
+      .where("from_member_id", "=", fromMemberId.value)
+      .where("to_member_id", "=", toMemberId.value)
+      .executeTakeFirst();
+
+    if (!row) {
+      return null;
+    }
+
+    return this.toLike(row);
+  }
+
   async countSentThisMonth(fromMemberId: UUID): Promise<number> {
     const now = new Date();
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -47,5 +62,9 @@ export class LikeRepositoryImpl implements ILikeRepository {
       .executeTakeFirstOrThrow();
 
     return Number(row.count);
+  }
+
+  private toLike(row: LikeRow): Like {
+    return new Like(new UUID(row.id), new UUID(row.from_member_id), new UUID(row.to_member_id));
   }
 }
