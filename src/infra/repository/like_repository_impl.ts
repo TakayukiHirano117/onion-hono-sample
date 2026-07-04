@@ -21,6 +21,16 @@ export class LikeRepositoryImpl implements ILikeRepository {
       .execute();
   }
 
+  async delete(fromMemberId: UUID, toMemberId: UUID, tx?: unknown): Promise<void> {
+    const executor = resolveExecutor(this._db, tx);
+
+    await executor
+      .deleteFrom("likes")
+      .where("from_member_id", "=", fromMemberId.value)
+      .where("to_member_id", "=", toMemberId.value)
+      .execute();
+  }
+
   async exists(fromMemberId: UUID, toMemberId: UUID): Promise<boolean> {
     const row = await this._db
       .selectFrom("likes")

@@ -1,21 +1,26 @@
-// ドメイン層とインフラ層のオブジェクトを使って組み立てる。
-
-import { IMemberRepository } from "../../domain/member/i_member_repository";
+import { IProfileRepository } from "../../domain/profile/i_profile_repository";
+import { UUID } from "../../domain/shared/vo/uuid";
+import { NotFoundError } from "../shared/exception/application_error";
 import { FindAllMemberAppServiceDto } from "./find_all_member_app_service_dto";
+import { IFindDiscoverableMembersQueryService } from "./i_find_discoverable_members_query_service";
 
 export class FindAllMemberAppService {
   constructor(
-    private readonly _memberRepository: IMemberRepository,
+    private readonly _profileRepository: IProfileRepository,
+    private readonly _findDiscoverableMembersQueryService: IFindDiscoverableMembersQueryService,
   ) {}
 
-  async execute(): Promise<FindAllMemberAppServiceDto[]> {
-    const members = await this._memberRepository.findAll();
-    const membersDto = members.map((member) => ({
-      id: member.id.value,
-      name: member.name.value,
-      email: member.email.value,
-    }));
+  async execute(viewerMemberId: string): Promise<FindAllMemberAppServiceDto[]> {
+    const viewerId = new UUID(viewerMemberId);
 
-    return membersDto;
+    const viewerProfile = await this._profileRepository.findByMemberId(viewerId);
+    if (!viewerProfile) {
+      throw new NotFoundError("プロフィールが存在しません。");
+    }
+
+    return this._findDiscoverableMembersQueryService.execute({
+      viewerMemberId,
+      genders: viewerProfile.gender.discoveryTargetGenders(),
+    });
   }
 }
