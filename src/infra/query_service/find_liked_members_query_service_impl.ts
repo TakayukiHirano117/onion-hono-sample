@@ -9,7 +9,13 @@ export class FindLikedMembersQueryServiceImpl implements IFindLikedMembersQueryS
     const rows = await this._db
       .selectFrom("likes")
       .innerJoin("members", "members.id", "likes.to_member_id")
-      .select(["members.id", "members.name", "members.email"])
+      .innerJoin("profiles", "profiles.member_id", "members.id")
+      .select([
+        "members.id",
+        "members.name",
+        "members.email",
+        "profiles.top_image_path",
+      ])
       .where("likes.from_member_id", "=", viewerMemberId)
       .orderBy("likes.created_at", "desc")
       .execute();
@@ -19,6 +25,7 @@ export class FindLikedMembersQueryServiceImpl implements IFindLikedMembersQueryS
       name: row.name,
       email: row.email,
       hasLiked: true,
+      topImagePath: row.top_image_path,
     }));
   }
 }

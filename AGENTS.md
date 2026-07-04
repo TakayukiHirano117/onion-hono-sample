@@ -6,6 +6,7 @@
 - Runtime は Bun、Web Framework は Hono、DB は PostgreSQL、Query Builder は Kysely です。
 - DDD とオニオンアーキテクチャの責務分離を優先します。
 - 詳細なドメイン説明は `README.md`、細かい実装規約は `.cursor/rules/` を確認してください。
+- トップ画像・R2 ストレージ: `.cursor/rules/object-storage-and-top-image.mdc`
 
 ## Commands
 

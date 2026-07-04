@@ -17,6 +17,7 @@ describe('Profile', () => {
       bio,
       gender,
       birthDate,
+      null,
     )
 
     expect(profile).toBeInstanceOf(Profile)
@@ -24,6 +25,7 @@ describe('Profile', () => {
     expect(profile.bio).toBe(bio)
     expect(profile.gender).toBe(gender)
     expect(profile.birthDate).toBe(birthDate)
+    expect(profile.topImagePath).toBeNull()
   })
 
   it('createでインスタンス化できる', () => {
@@ -35,5 +37,6 @@ describe('Profile', () => {
     const profile = Profile.create(memberId, bio, gender, birthDate)
 
     expect(profile).toBeInstanceOf(Profile)
+    expect(profile.topImagePath).toBeNull()
   })
 })

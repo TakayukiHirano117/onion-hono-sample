@@ -44,7 +44,11 @@ import { MypageController } from "../presentation/mypage/mypage_controller";
 import { FindMyMemberController } from "../presentation/mypage/find_my_member_controller";
 import { LogoutAppService } from "../application_service/auth/members/logout_app_service";
 import { SessionDeleteManager } from "../infra/shared/session_delete_manager";
+import { UploadTopImageAppService } from "../application_service/member/upload_top_image_app_service";
+import { GetMediaController } from "../presentation/media/get_media_controller";
+import { UploadTopImageController } from "../presentation/mypage/upload_top_image_controller";
 import type { AppConfig } from "./config/app_config";
+import type { AppDependencies } from "./types/app_dependencies";
 import type { AppEnv } from "./types/app_env";
 import type { Database } from "../infra/database/types";
 
@@ -55,10 +59,16 @@ const STATUS_BY_CODE: Record<ApplicationErrorCode, ContentfulStatusCode> = {
   [ApplicationErrorCode.CONFLICT]: 409,
 };
 
-export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono<AppEnv> {
+export function createApp(
+  db: Kysely<Database>,
+  appConfig: AppConfig,
+  deps: AppDependencies,
+): Hono<AppEnv> {
   const app = new Hono<AppEnv>().basePath("/api/v1");
 
   app.use("*", logger());
+
+  const { objectStorage, topImageUrlResolver } = deps;
 
   const memberRepository = new MemberRepositoryImpl(db);
   const profileRepository = new ProfileRepositoryImpl(db);
@@ -87,13 +97,19 @@ export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono<AppE
   const findAllMemberAppService = new FindAllMemberAppService(
     profileRepository,
     findDiscoverableMembersQueryService,
+    topImageUrlResolver,
   );
   const findMemberDetailAppService = new FindMemberDetailAppService(
     memberRepository,
     profileRepository,
     likeRepository,
+    topImageUrlResolver,
   );
-  const findMyMemberAppService = new FindMyMemberAppService(memberRepository, profileRepository);
+  const findMyMemberAppService = new FindMyMemberAppService(
+    memberRepository,
+    profileRepository,
+    topImageUrlResolver,
+  );
   const createMemberAppService = new CreateMemberAppService(
     memberRepository,
     memberDomainService,
@@ -101,6 +117,12 @@ export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono<AppE
     transactionManager,
     passwordHashGenerator,
     uuidGenerator,
+    objectStorage,
+  );
+  const uploadTopImageAppService = new UploadTopImageAppService(
+    profileRepository,
+    objectStorage,
+    topImageUrlResolver,
   );
   const sendLikeAppService = new SendLikeAppService(
     likeRepository,
@@ -111,7 +133,10 @@ export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono<AppE
     uuidGenerator,
   );
   const deleteLikeAppService = new DeleteLikeAppService(likeRepository, memberRepository);
-  const findLikedMembersAppService = new FindLikedMembersAppService(findLikedMembersQueryService);
+  const findLikedMembersAppService = new FindLikedMembersAppService(
+    findLikedMembersQueryService,
+    topImageUrlResolver,
+  );
 
   app.get("/", (c: Context) => {
     return c.text("Hello Hono!");
@@ -143,9 +168,12 @@ export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono<AppE
 
   const mypageController = new MypageController(
     new FindMyMemberController(findMyMemberAppService),
+    new UploadTopImageController(uploadTopImageAppService),
     authMiddleware,
   );
   app.route("/mypage", mypageController.setUpRoutes());
+
+  app.get("/media/*", (c: Context) => new GetMediaController(objectStorage).handle(c));
 
   app.route("/likes", likeController.setUpRoutes());
   app.route("/auth", authController.setUpRoutes());

@@ -1,3 +1,5 @@
 auth:
   cookie:
     secure: true
+media:
+  baseUrl: "https://onion-hono-api.example.workers.dev/api/v1/media"

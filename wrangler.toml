@@ -11,7 +11,13 @@ id = "REPLACE_WITH_HYPERDRIVE_ID"
 
 [vars]
 AUTH_COOKIE_SECURE = "true"
+MEDIA_BASE_URL = "https://onion-hono-api.example.workers.dev/api/v1/media"
 
 [env.dev]
 [env.dev.vars]
 AUTH_COOKIE_SECURE = "false"
+MEDIA_BASE_URL = "http://localhost:8787/api/v1/media"
+
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "macching-photos"

@@ -3,6 +3,7 @@ import { IMemberRepository } from "../../domain/member/i_member_repository";
 import { IProfileRepository } from "../../domain/profile/i_profile_repository";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
+import type { ITopImageUrlResolver } from "../shared/i_top_image_url_resolver";
 import { FindMemberDetailAppServiceDto } from "./find_member_detail_app_service_dto";
 
 type FindMemberDetailInput = {
@@ -15,6 +16,7 @@ export class FindMemberDetailAppService {
     private readonly _memberRepository: IMemberRepository,
     private readonly _profileRepository: IProfileRepository,
     private readonly _likeRepository: ILikeRepository,
+    private readonly _topImageUrlResolver: ITopImageUrlResolver,
   ) {}
 
   async execute(input: FindMemberDetailInput): Promise<FindMemberDetailAppServiceDto> {
@@ -41,6 +43,7 @@ export class FindMemberDetailAppService {
       gender: profile.gender.value,
       birthDate: profile.birthDate.value,
       hasLiked,
+      topImageUrl: this._topImageUrlResolver.resolve(profile.topImagePath?.value ?? null),
     };
   }
 }

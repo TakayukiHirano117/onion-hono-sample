@@ -1,2 +1,4 @@
-# deps
+.storage/
 node_modules/
+.env
+.env.local

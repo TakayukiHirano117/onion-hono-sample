@@ -6,6 +6,9 @@ const configSchema = z.object({
       secure: z.boolean(),
     }),
   }),
+  media: z.object({
+    baseUrl: z.string().url(),
+  }),
 });
 
 export type AppConfig = z.infer<typeof configSchema>;

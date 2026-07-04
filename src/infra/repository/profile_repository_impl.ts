@@ -3,6 +3,7 @@ import { Profile } from "../../domain/profile/profile";
 import { BirthDate } from "../../domain/profile/vo/birth_date";
 import { Bio } from "../../domain/profile/vo/bio";
 import { Gender } from "../../domain/profile/vo/gender";
+import { TopImagePath } from "../../domain/profile/vo/top_image_path";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { resolveExecutor } from "../database/executor";
 import type { Kysely } from "kysely";
@@ -21,6 +22,7 @@ export class ProfileRepositoryImpl implements IProfileRepository {
         bio: profile.bio.value,
         gender: profile.gender.value,
         birth_date: profile.birthDate.value,
+        top_image_path: null,
       })
       .execute();
   }
@@ -39,12 +41,23 @@ export class ProfileRepositoryImpl implements IProfileRepository {
     return this.toProfile(row);
   }
 
+  async updateTopImagePath(memberId: UUID, path: TopImagePath, tx?: unknown): Promise<void> {
+    const executor = resolveExecutor(this._db, tx);
+
+    await executor
+      .updateTable("profiles")
+      .set({ top_image_path: path.value })
+      .where("member_id", "=", memberId.value)
+      .execute();
+  }
+
   private toProfile(row: ProfileRow): Profile {
     return new Profile(
       new UUID(row.member_id),
       new Bio(row.bio),
       new Gender(row.gender),
       new BirthDate(this.formatBirthDate(row.birth_date)),
+      row.top_image_path ? new TopImagePath(row.top_image_path) : null,
     );
   }
 

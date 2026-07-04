@@ -1,0 +1,67 @@
+---
+description: R2 オブジェクトストレージとトップ画像（top_image_path）の設計・層配置ルール
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# Object Storage / Top Image Rules
+
+トップ画像（プロフィール写真）と R2 ストレージの実装は、以下を守る。
+
+## ストレージと DB の役割
+
+- R2 / ローカルファイルは **オブジェクト置き場**。会員 ID で検索する DB ではない。
+- **PostgreSQL が索引**。`profiles.top_image_path` に R2 オブジェクトキーを保存する。
+- 会員 ID から URL をフロントで組み立てない。API が `topImageUrl` を返す。
+
+## オブジェクトキー規約
+
+```
+members/{memberId}/top.{ext}
+```
+
+- `ext` は Domain VO で許可した拡張子のみ（`jpg` / `jpeg` / `png` / `webp`）。
+- 更新時は同一キーへ上書き。path が変わる場合のみ DB を更新する。
+
+## MVP の Cloudflare 利用方針
+
+- バイナリ保存: **R2**（Workers）/ ローカルファイル（Bun dev）。
+- 配信: **`GET /api/v1/media/*`** プロキシ（`AppConfig.media.baseUrl` ベース）。
+- **Cloudflare Images Storage は使わない**（コスト優先 MVP）。
+- リサイズ・形式変換（Images Transform）は今回スコープ外。将来追加可。
+
+## 層配置（port + Infra 実装）
+
+| 責務 | port（ApplicationService） | 実装（Infra） |
+|------|---------------------------|---------------|
+| 保存・取得 | `IObjectStorage` | `R2ObjectStorageImpl` / `LocalObjectStorageImpl` |
+| path → 公開 URL | `ITopImageUrlResolver` | `TopImageUrlResolverImpl` |
+
+- **`media.baseUrl + path` の文字列連結は Infra**（`TopImageUrlResolverImpl`）。ApplicationService に URL 組み立て util を置かない。
+- ApplicationService は `topImageUrlResolver.resolve(path)` を呼んで DTO に載せるだけ。
+- DI は `src/Cmd/index.ts` で行い、`createApp` へ port 実装を注入する。
+
+## Domain 検証
+
+画像の MIME・拡張子・最大サイズ（5MB）は **Domain VO**（例: `TopImageUpload`）で検証する。
+
+Presentation は「ファイルが来ているか」程度。許可形式の判定を Controller / Zod に書かない。
+
+## API レスポンス
+
+- DB カラム: `top_image_path`（snake_case）
+- JSON フィールド: `topImageUrl`（camelCase, `string | null`）
+- 未設定（NULL）のとき `topImageUrl: null` を返す
+
+## 禁止
+
+```typescript
+// ❌ ApplicationService に URL 組み立て
+const url = `${baseUrl}/${path}`;
+
+// ❌ R2 を memberId だけで引く（DB を経由しない）
+await r2.get(memberId);
+
+// ✅ ApplicationService
+topImageUrl: this._topImageUrlResolver.resolve(row.top_image_path)
+```
