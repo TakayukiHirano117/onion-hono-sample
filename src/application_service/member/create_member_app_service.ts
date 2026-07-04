@@ -1,4 +1,5 @@
 import { IMemberRepository } from "../../domain/member/i_member_repository";
+import type { IMemberDomainService } from "../../domain/member/i_member_domain_service";
 import { Member } from "../../domain/member/member";
 import { Name } from "../../domain/member/vo/name";
 import { Bio } from "../../domain/profile/vo/bio";
@@ -11,7 +12,6 @@ import { UUID } from "../../domain/shared/vo/uuid";
 import type { ITransactionManager } from "../../infra/shared/i_transaction_manager";
 import { UUIDGenerator } from "../../infra/shared/uuid_generator";
 import { IPasswordHashGenerator } from "../../infra/shared/i_password_hash_generator";
-import { ConflictError } from "../shared/exception/application_error";
 
 type CreateMemberInput = {
   name: string;
@@ -25,18 +25,16 @@ type CreateMemberInput = {
 export class CreateMemberAppService {
   constructor(
     private readonly _memberRepository: IMemberRepository,
+    private readonly _memberDomainService: IMemberDomainService,
     private readonly _profileRepository: IProfileRepository,
     private readonly _transactionManager: ITransactionManager,
     private readonly _passwordHashGenerator: IPasswordHashGenerator,
-    private readonly _uuidGenerator: UUIDGenerator
+    private readonly _uuidGenerator: UUIDGenerator,
   ) {}
 
   async execute(input: CreateMemberInput): Promise<void> {
     const email = new Email(input.email);
-    const existingMember = await this._memberRepository.findByEmail(email);
-    if (existingMember) {
-      throw new ConflictError("このメールアドレスは既に登録されています。");
-    }
+    await this._memberDomainService.isEmailAlreadyRegistered(email);
 
     const member = Member.create(
       new UUID(this._uuidGenerator.execute()),
