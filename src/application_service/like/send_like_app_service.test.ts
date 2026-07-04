@@ -76,6 +76,17 @@ class InMemoryLikeRepository implements ILikeRepository {
     this.likes.push(like);
   }
 
+  async delete(fromMemberId: UUID, toMemberId: UUID): Promise<void> {
+    const index = this.likes.findIndex(
+      (like) =>
+        like.fromMemberId.value === fromMemberId.value &&
+        like.toMemberId.value === toMemberId.value,
+    );
+    if (index !== -1) {
+      this.likes.splice(index, 1);
+    }
+  }
+
   async exists(fromMemberId: UUID, toMemberId: UUID): Promise<boolean> {
     return this.likes.some(
       (like) =>

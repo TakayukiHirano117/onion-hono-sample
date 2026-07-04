@@ -1,25 +1,17 @@
-import { ILikeRepository } from "../../domain/like/i_like_repository";
 import { IMemberRepository } from "../../domain/member/i_member_repository";
 import { IProfileRepository } from "../../domain/profile/i_profile_repository";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
-import { FindMemberDetailAppServiceDto } from "./find_member_detail_app_service_dto";
+import { FindMyMemberAppServiceDto } from "./find_my_member_app_service_dto";
 
-type FindMemberDetailInput = {
-  memberId: string;
-  viewerMemberId: string;
-};
-
-export class FindMemberDetailAppService {
+export class FindMyMemberAppService {
   constructor(
     private readonly _memberRepository: IMemberRepository,
     private readonly _profileRepository: IProfileRepository,
-    private readonly _likeRepository: ILikeRepository,
   ) {}
 
-  async execute(input: FindMemberDetailInput): Promise<FindMemberDetailAppServiceDto> {
-    const memberId = new UUID(input.memberId);
-    const viewerMemberId = new UUID(input.viewerMemberId);
+  async execute(viewerMemberId: string): Promise<FindMyMemberAppServiceDto> {
+    const memberId = new UUID(viewerMemberId);
 
     const member = await this._memberRepository.findById(memberId);
     if (!member) {
@@ -31,8 +23,6 @@ export class FindMemberDetailAppService {
       throw new NotFoundError("プロフィールが存在しません。");
     }
 
-    const hasLiked = await this._likeRepository.exists(viewerMemberId, memberId);
-
     return {
       id: member.id.value,
       name: member.name.value,
@@ -40,7 +30,6 @@ export class FindMemberDetailAppService {
       bio: profile.bio.value,
       gender: profile.gender.value,
       birthDate: profile.birthDate.value,
-      hasLiked,
     };
   }
 }

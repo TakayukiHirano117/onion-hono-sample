@@ -1,4 +1,4 @@
-export type FindAllMemberAppServiceDto = {
+export type FindLikedMembersAppServiceDto = {
   readonly id: string;
   readonly name: string;
   readonly email: string;
