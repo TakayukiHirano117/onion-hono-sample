@@ -27,6 +27,7 @@ import { AuthController } from "../presentation/auth/auth_controller";
 import { LoginController } from "../presentation/auth/members/login_controller";
 import { PasswordVerificationDomainService } from "../infra/domain_service/password_verification_domain_service";
 import { MatchingDomainService } from "../infra/domain_service/matching_domain_service";
+import { MemberDomainService } from "../infra/domain_service/member_domain_service";
 import { FindByEmailForLoginQueryServiceImpl } from "../infra/query_service/find_by_email_for_login_query_service_impl";
 import { LoginSessionGeneratorImpl } from "../infra/shared/login_session_generator_impl";
 import { AuthMiddleware } from "./middlewares/members/auth_middeware";
@@ -56,6 +57,7 @@ export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono {
   const passwordHashGenerator = new PasswordHashGenerator();
   const passwordVerificationDomainService = new PasswordVerificationDomainService();
   const matchingDomainService = new MatchingDomainService();
+  const memberDomainService = new MemberDomainService(memberRepository);
   const findByEmailForLoginQueryService = new FindByEmailForLoginQueryServiceImpl(db);
   const loginSessionGenerator = new LoginSessionGeneratorImpl(db);
   const authMiddleware = new AuthMiddleware(db);
@@ -72,6 +74,7 @@ export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono {
   const findAllMemberAppService = new FindAllMemberAppService(memberRepository);
   const createMemberAppService = new CreateMemberAppService(
     memberRepository,
+    memberDomainService,
     profileRepository,
     transactionManager,
     passwordHashGenerator,
