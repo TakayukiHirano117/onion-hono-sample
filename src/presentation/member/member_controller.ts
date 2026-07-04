@@ -1,4 +1,5 @@
 import { FindAllMemberController } from "./find_all_member_controller";
+import { FindMemberDetailController } from "./find_member_detail_controller";
 import { Context } from "hono";
 import { Hono } from "hono";
 import { CreateMemberController } from "./create_member_controller";
@@ -7,6 +8,7 @@ import type { AuthMiddleware } from "../../cmd/middlewares/members/auth_middewar
 export class MemberController {
   constructor(
     private readonly _findAllMemberController: FindAllMemberController,
+    private readonly _findMemberDetailController: FindMemberDetailController,
     private readonly _createMemberController: CreateMemberController,
     private readonly _authMiddleware: AuthMiddleware,
   ) {}
@@ -16,6 +18,10 @@ export class MemberController {
 
     router.get("/", this._authMiddleware.handle, (c: Context) =>
       this._findAllMemberController.handle(c),
+    );
+
+    router.get("/:memberId", this._authMiddleware.handle, (c: Context) =>
+      this._findMemberDetailController.handle(c),
     );
 
     router.post("/", (c: Context) =>
