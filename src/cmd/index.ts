@@ -10,7 +10,9 @@ import { mapDomainError } from "../application_service/shared/exception/map_doma
 import { DomainError } from "../domain/shared/exception/domain_error";
 import { MemberController } from "../presentation/member/member_controller";
 import { FindAllMemberController } from "../presentation/member/find_all_member_controller";
+import { FindMemberDetailController } from "../presentation/member/find_member_detail_controller";
 import { FindAllMemberAppService } from "../application_service/member/find_all_member_app_service";
+import { FindMemberDetailAppService } from "../application_service/member/find_member_detail_app_service";
 import { MemberRepositoryImpl } from "../infra/repository/member_repository_impl";
 import { CreateMemberController } from "../presentation/member/create_member_controller";
 import { CreateMemberAppService } from "../application_service/member/create_member_app_service";
@@ -70,6 +72,10 @@ export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono {
   );
   const logoutAppService = new LogoutAppService(sessionDeleteManager);
   const findAllMemberAppService = new FindAllMemberAppService(memberRepository);
+  const findMemberDetailAppService = new FindMemberDetailAppService(
+    memberRepository,
+    profileRepository,
+  );
   const createMemberAppService = new CreateMemberAppService(
     memberRepository,
     profileRepository,
@@ -92,6 +98,7 @@ export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono {
 
   const memberController = new MemberController(
     new FindAllMemberController(findAllMemberAppService),
+    new FindMemberDetailController(findMemberDetailAppService),
     new CreateMemberController(createMemberAppService),
     authMiddleware,
   );

@@ -33,6 +33,7 @@ export class CreateMemberAppService {
 
   async execute(input: CreateMemberInput): Promise<void> {
     const email = new Email(input.email);
+    // TODO: これドメイン知識にしたい
     const existingMember = await this._memberRepository.findByEmail(email);
     if (existingMember) {
       throw new ConflictError("このメールアドレスは既に登録されています。");
