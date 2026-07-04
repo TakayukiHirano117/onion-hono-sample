@@ -5,11 +5,7 @@ export class Gender {
   static readonly FEMALE = "female";
   static readonly OTHER = "other";
 
-  private static readonly ALLOWED = [
-    Gender.MALE,
-    Gender.FEMALE,
-    Gender.OTHER,
-  ] as const;
+  private static readonly ALLOWED = [Gender.MALE, Gender.FEMALE, Gender.OTHER] as const;
 
   private readonly _value: string;
 
@@ -26,5 +22,17 @@ export class Gender {
 
   get value(): string {
     return this._value;
+  }
+
+  discoveryTargetGenders(): string[] | null {
+    if (this._value === Gender.MALE) {
+      return [Gender.FEMALE];
+    }
+
+    if (this._value === Gender.FEMALE) {
+      return [Gender.MALE];
+    }
+
+    return null;
   }
 }

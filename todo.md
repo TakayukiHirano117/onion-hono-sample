@@ -6,3 +6,5 @@
 - [ ] ローカルでactions試せる様にしたい。
 - [ ] 重複ログインさせたくない
 - [x] Cloudflare Workers にデプロイ（Hyperdrive + Supabase）
+- [ ] supabase設定
+- [ ] 画像のcloud flareへの保存

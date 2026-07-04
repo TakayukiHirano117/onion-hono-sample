@@ -13,6 +13,7 @@ import { FindAllMemberController } from "../presentation/member/find_all_member_
 import { FindMemberDetailController } from "../presentation/member/find_member_detail_controller";
 import { FindAllMemberAppService } from "../application_service/member/find_all_member_app_service";
 import { FindMemberDetailAppService } from "../application_service/member/find_member_detail_app_service";
+import { FindMyMemberAppService } from "../application_service/member/find_my_member_app_service";
 import { MemberRepositoryImpl } from "../infra/repository/member_repository_impl";
 import { CreateMemberController } from "../presentation/member/create_member_controller";
 import { CreateMemberAppService } from "../application_service/member/create_member_app_service";
@@ -21,7 +22,10 @@ import { TransactionManagerImpl } from "../infra/shared/transaction_manager_impl
 import { LikeRepositoryImpl } from "../infra/repository/like_repository_impl";
 import { MatchingRepositoryImpl } from "../infra/repository/matching_repository_impl";
 import { SendLikeAppService } from "../application_service/like/send_like_app_service";
+import { DeleteLikeAppService } from "../application_service/like/delete_like_app_service";
+import { FindLikedMembersAppService } from "../application_service/like/find_liked_members_app_service";
 import { LikeController } from "../presentation/like/like_controller";
+import { FindLikedMembersController } from "../presentation/like/find_liked_members_controller";
 import { LoginAppService } from "../application_service/auth/members/login_app_service";
 import { PasswordHashGenerator } from "../infra/shared/password_hash_generator";
 import { UUIDGenerator } from "../infra/shared/uuid_generator";
@@ -31,12 +35,17 @@ import { PasswordVerificationDomainService } from "../infra/domain_service/passw
 import { MatchingDomainService } from "../infra/domain_service/matching_domain_service";
 import { MemberDomainService } from "../infra/domain_service/member_domain_service";
 import { FindByEmailForLoginQueryServiceImpl } from "../infra/query_service/find_by_email_for_login_query_service_impl";
+import { FindDiscoverableMembersQueryServiceImpl } from "../infra/query_service/find_discoverable_members_query_service_impl";
+import { FindLikedMembersQueryServiceImpl } from "../infra/query_service/find_liked_members_query_service_impl";
 import { LoginSessionGeneratorImpl } from "../infra/shared/login_session_generator_impl";
 import { AuthMiddleware } from "./middlewares/members/auth_middeware";
 import { LogoutController } from "../presentation/auth/members/logout_controller";
+import { MypageController } from "../presentation/mypage/mypage_controller";
+import { FindMyMemberController } from "../presentation/mypage/find_my_member_controller";
 import { LogoutAppService } from "../application_service/auth/members/logout_app_service";
 import { SessionDeleteManager } from "../infra/shared/session_delete_manager";
 import type { AppConfig } from "./config/app_config";
+import type { AppEnv } from "./types/app_env";
 import type { Database } from "../infra/database/types";
 
 const STATUS_BY_CODE: Record<ApplicationErrorCode, ContentfulStatusCode> = {
@@ -46,8 +55,8 @@ const STATUS_BY_CODE: Record<ApplicationErrorCode, ContentfulStatusCode> = {
   [ApplicationErrorCode.CONFLICT]: 409,
 };
 
-export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono {
-  const app = new Hono().basePath("/api/v1");
+export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono<AppEnv> {
+  const app = new Hono<AppEnv>().basePath("/api/v1");
 
   app.use("*", logger());
 
@@ -72,12 +81,19 @@ export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono {
     uuidGenerator,
     loginSessionGenerator,
   );
+  const findDiscoverableMembersQueryService = new FindDiscoverableMembersQueryServiceImpl(db);
+  const findLikedMembersQueryService = new FindLikedMembersQueryServiceImpl(db);
   const logoutAppService = new LogoutAppService(sessionDeleteManager);
-  const findAllMemberAppService = new FindAllMemberAppService(memberRepository);
+  const findAllMemberAppService = new FindAllMemberAppService(
+    profileRepository,
+    findDiscoverableMembersQueryService,
+  );
   const findMemberDetailAppService = new FindMemberDetailAppService(
     memberRepository,
     profileRepository,
+    likeRepository,
   );
+  const findMyMemberAppService = new FindMyMemberAppService(memberRepository, profileRepository);
   const createMemberAppService = new CreateMemberAppService(
     memberRepository,
     memberDomainService,
@@ -94,6 +110,8 @@ export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono {
     transactionManager,
     uuidGenerator,
   );
+  const deleteLikeAppService = new DeleteLikeAppService(likeRepository, memberRepository);
+  const findLikedMembersAppService = new FindLikedMembersAppService(findLikedMembersQueryService);
 
   app.get("/", (c: Context) => {
     return c.text("Hello Hono!");
@@ -106,7 +124,12 @@ export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono {
     authMiddleware,
   );
 
-  const likeController = new LikeController(sendLikeAppService);
+  const likeController = new LikeController(
+    sendLikeAppService,
+    deleteLikeAppService,
+    new FindLikedMembersController(findLikedMembersAppService),
+    authMiddleware,
+  );
 
   const authController = new AuthController(
     new LoginController(loginAppService, appConfig.auth.cookie),
@@ -117,6 +140,13 @@ export function createApp(db: Kysely<Database>, appConfig: AppConfig): Hono {
   app.use("/likes/*", authMiddleware.handle);
 
   app.route("/members", memberController.setUpRoutes());
+
+  const mypageController = new MypageController(
+    new FindMyMemberController(findMyMemberAppService),
+    authMiddleware,
+  );
+  app.route("/mypage", mypageController.setUpRoutes());
+
   app.route("/likes", likeController.setUpRoutes());
   app.route("/auth", authController.setUpRoutes());
 

@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { Like } from "../../domain/like/like";
-import type { ILikeRepository } from "../../domain/like/i_like_repository";
 import { Member } from "../../domain/member/member";
 import type { IMemberRepository } from "../../domain/member/i_member_repository";
 import { Name } from "../../domain/member/vo/name";
@@ -12,10 +10,9 @@ import { Gender } from "../../domain/profile/vo/gender";
 import { Email } from "../../domain/shared/vo/email";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
-import { FindMemberDetailAppService } from "./find_member_detail_app_service";
+import { FindMyMemberAppService } from "./find_my_member_app_service";
 
 const memberId = "00000000-0000-4000-8000-000000000001";
-const viewerMemberId = "00000000-0000-4000-8000-000000000002";
 
 class InMemoryMemberRepository implements IMemberRepository {
   constructor(private readonly members: Member[]) {}
@@ -45,30 +42,6 @@ class InMemoryProfileRepository implements IProfileRepository {
   }
 }
 
-class InMemoryLikeRepository implements ILikeRepository {
-  constructor(private readonly likes: Like[]) {}
-
-  async create(): Promise<void> {}
-
-  async delete(): Promise<void> {}
-
-  async exists(fromMemberId: UUID, toMemberId: UUID): Promise<boolean> {
-    return this.likes.some(
-      (like) =>
-        like.fromMemberId.value === fromMemberId.value &&
-        like.toMemberId.value === toMemberId.value,
-    );
-  }
-
-  async findByMembers(): Promise<Like | null> {
-    return null;
-  }
-
-  async countSentThisMonth(): Promise<number> {
-    return 0;
-  }
-}
-
 const createMember = (): Member =>
   Member.create(new UUID(memberId), new Name("test member"), new Email("test@example.com"));
 
@@ -80,15 +53,14 @@ const createProfile = (): Profile =>
     new BirthDate("1990/01/01"),
   );
 
-describe("FindMemberDetailAppService", () => {
-  it("会員とプロフィールの詳細を返す", async () => {
-    const service = new FindMemberDetailAppService(
+describe("FindMyMemberAppService", () => {
+  it("自分の会員とプロフィールの詳細を返す", async () => {
+    const service = new FindMyMemberAppService(
       new InMemoryMemberRepository([createMember()]),
       new InMemoryProfileRepository([createProfile()]),
-      new InMemoryLikeRepository([]),
     );
 
-    const result = await service.execute({ memberId, viewerMemberId });
+    const result = await service.execute(memberId);
 
     expect(result).toEqual({
       id: memberId,
@@ -97,44 +69,24 @@ describe("FindMemberDetailAppService", () => {
       bio: "hello",
       gender: "male",
       birthDate: "1990/01/01",
-      hasLiked: false,
     });
   });
 
-  it("閲覧者がいいね済みの場合は hasLiked を true にする", async () => {
-    const like = Like.create(
-      new UUID("00000000-0000-4000-8000-000000000003"),
-      new UUID(viewerMemberId),
-      new UUID(memberId),
-    );
-    const service = new FindMemberDetailAppService(
-      new InMemoryMemberRepository([createMember()]),
-      new InMemoryProfileRepository([createProfile()]),
-      new InMemoryLikeRepository([like]),
-    );
-
-    const result = await service.execute({ memberId, viewerMemberId });
-
-    expect(result.hasLiked).toBe(true);
-  });
-
   it("会員が存在しない場合はエラーにする", async () => {
-    const service = new FindMemberDetailAppService(
+    const service = new FindMyMemberAppService(
       new InMemoryMemberRepository([]),
       new InMemoryProfileRepository([createProfile()]),
-      new InMemoryLikeRepository([]),
     );
 
-    await expect(service.execute({ memberId, viewerMemberId })).rejects.toThrow(NotFoundError);
+    await expect(service.execute(memberId)).rejects.toThrow(NotFoundError);
   });
 
   it("プロフィールが存在しない場合はエラーにする", async () => {
-    const service = new FindMemberDetailAppService(
+    const service = new FindMyMemberAppService(
       new InMemoryMemberRepository([createMember()]),
       new InMemoryProfileRepository([]),
-      new InMemoryLikeRepository([]),
     );
 
-    await expect(service.execute({ memberId, viewerMemberId })).rejects.toThrow(NotFoundError);
+    await expect(service.execute(memberId)).rejects.toThrow(NotFoundError);
   });
 });
