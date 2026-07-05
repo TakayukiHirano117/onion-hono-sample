@@ -14,7 +14,13 @@ export class FindDiscoverableMembersQueryServiceImpl implements IFindDiscoverabl
           .onRef("likes.to_member_id", "=", "members.id")
           .on("likes.from_member_id", "=", input.viewerMemberId),
       )
-      .select(["members.id", "members.name", "members.email", "likes.id as like_id"])
+      .select([
+        "members.id",
+        "members.name",
+        "members.email",
+        "profiles.top_image_path",
+        "likes.id as like_id",
+      ])
       .where("members.id", "<>", input.viewerMemberId);
 
     if (input.genders !== null) {
@@ -28,6 +34,7 @@ export class FindDiscoverableMembersQueryServiceImpl implements IFindDiscoverabl
       name: row.name,
       email: row.email,
       hasLiked: row.like_id !== null,
+      topImagePath: row.top_image_path,
     }));
   }
 }

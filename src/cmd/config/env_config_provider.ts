@@ -3,6 +3,7 @@ import type { ConfigProvider } from "./i_config_provider";
 
 export type WorkerEnv = {
   AUTH_COOKIE_SECURE: string;
+  MEDIA_PUBLIC_BASE_URL: string;
 };
 
 export class EnvConfigProvider implements ConfigProvider {
@@ -14,6 +15,12 @@ export class EnvConfigProvider implements ConfigProvider {
         cookie: {
           secure: this.env.AUTH_COOKIE_SECURE === "true",
         },
+      },
+      media: {
+        publicBaseUrl: this.env.MEDIA_PUBLIC_BASE_URL,
+      },
+      objectStorage: {
+        localRootDir: ".storage",
       },
     });
   }

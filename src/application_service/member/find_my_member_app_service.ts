@@ -2,12 +2,14 @@ import { IMemberRepository } from "../../domain/member/i_member_repository";
 import { IProfileRepository } from "../../domain/profile/i_profile_repository";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
+import type { ITopImageUrlResolver } from "../shared/i_top_image_url_resolver";
 import { FindMyMemberAppServiceDto } from "./find_my_member_app_service_dto";
 
 export class FindMyMemberAppService {
   constructor(
     private readonly _memberRepository: IMemberRepository,
     private readonly _profileRepository: IProfileRepository,
+    private readonly _topImageUrlResolver: ITopImageUrlResolver,
   ) {}
 
   async execute(viewerMemberId: string): Promise<FindMyMemberAppServiceDto> {
@@ -30,6 +32,7 @@ export class FindMyMemberAppService {
       bio: profile.bio.value,
       gender: profile.gender.value,
       birthDate: profile.birthDate.value,
+      topImageUrl: this._topImageUrlResolver.resolve(profile.topImagePath),
     };
   }
 }

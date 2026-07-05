@@ -1,3 +1,7 @@
 auth:
   cookie:
     secure: true
+media:
+  publicBaseUrl: "https://REPLACE_WITH_FRONT_DOMAIN/api/media"
+objectStorage:
+  localRootDir: ".storage"

@@ -12,6 +12,7 @@ import { Gender } from "../../domain/profile/vo/gender";
 import { Email } from "../../domain/shared/vo/email";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
+import { StubTopImageUrlResolver } from "../shared/stub_top_image_url_resolver";
 import { FindMemberDetailAppService } from "./find_member_detail_app_service";
 
 const memberId = "00000000-0000-4000-8000-000000000001";
@@ -43,6 +44,8 @@ class InMemoryProfileRepository implements IProfileRepository {
   async findByMemberId(memberId: UUID): Promise<Profile | null> {
     return this.profiles.find((profile) => profile.memberId.value === memberId.value) ?? null;
   }
+
+  async updateTopImagePath(): Promise<void> {}
 }
 
 class InMemoryLikeRepository implements ILikeRepository {
@@ -86,6 +89,7 @@ describe("FindMemberDetailAppService", () => {
       new InMemoryMemberRepository([createMember()]),
       new InMemoryProfileRepository([createProfile()]),
       new InMemoryLikeRepository([]),
+      new StubTopImageUrlResolver(),
     );
 
     const result = await service.execute({ memberId, viewerMemberId });
@@ -98,6 +102,7 @@ describe("FindMemberDetailAppService", () => {
       gender: "male",
       birthDate: "1990/01/01",
       hasLiked: false,
+      topImageUrl: null,
     });
   });
 
@@ -111,6 +116,7 @@ describe("FindMemberDetailAppService", () => {
       new InMemoryMemberRepository([createMember()]),
       new InMemoryProfileRepository([createProfile()]),
       new InMemoryLikeRepository([like]),
+      new StubTopImageUrlResolver(),
     );
 
     const result = await service.execute({ memberId, viewerMemberId });
@@ -123,6 +129,7 @@ describe("FindMemberDetailAppService", () => {
       new InMemoryMemberRepository([]),
       new InMemoryProfileRepository([createProfile()]),
       new InMemoryLikeRepository([]),
+      new StubTopImageUrlResolver(),
     );
 
     await expect(service.execute({ memberId, viewerMemberId })).rejects.toThrow(NotFoundError);
@@ -133,6 +140,7 @@ describe("FindMemberDetailAppService", () => {
       new InMemoryMemberRepository([createMember()]),
       new InMemoryProfileRepository([]),
       new InMemoryLikeRepository([]),
+      new StubTopImageUrlResolver(),
     );
 
     await expect(service.execute({ memberId, viewerMemberId })).rejects.toThrow(NotFoundError);
