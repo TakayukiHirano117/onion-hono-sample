@@ -306,29 +306,20 @@ bun run deploy
 
 ## 9. GitHub Secrets（CI 自動 deploy）
 
-各 **サブモジュールの GitHub リポジトリ** に登録（親 repo ではない）。
+**本番 deploy** は **親リポジトリ（macching-app）** の [`.github/workflows/deploy.yml`](../../.github/workflows/deploy.yml) が担当する。`develop` → `main` マージ（= `main` への push）で API → フロントの順に deploy する。
 
-### onion-hono-sample
-
-**Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+**Settings** → **Secrets and variables** → **Actions** → **New repository secret**（親 repo `macching-app` に登録）
 
 | Name | Value |
 |---|---|
 | `CLOUDFLARE_API_TOKEN` | ステップ 2-2 の Token |
-| `DATABASE_URL` | ステップ 1-2 の `SUPABASE_DATABASE_URL` |
-
-[`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml): `main` への push で migrate → deploy。
-
-### next-front
-
-| Name | Value |
-|---|---|
-| `CLOUDFLARE_API_TOKEN` | 同上 |
 | `CLOUDFLARE_ACCOUNT_ID` | ステップ 2-1 の Account ID |
+| `DATABASE_URL` | ステップ 1-2 の `SUPABASE_DATABASE_URL` |
+| `GH_PAT` | サブモジュール checkout 用 PAT（`repo` スコープ。子 repo が private のとき必須） |
 
-Workflow: [`next-front/.github/workflows/deploy.yml`](../../next-front/.github/workflows/deploy.yml)
+子リポジトリの [`deploy.yml`](../.github/workflows/deploy.yml) / [`next-front/.github/workflows/deploy.yml`](../../next-front/.github/workflows/deploy.yml) は **緊急時の手動 deploy のみ**（`workflow_dispatch`）。stg 向け workflow は今後、各子 repo で `develop` 向けに別途追加する想定。
 
-初回は **ステップ 6〜8 を手動で完了してから** CI に任せる。
+初回は **ステップ 6〜8 を手動で完了してから** 親 repo の CI に任せる。
 
 ---
 
