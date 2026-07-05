@@ -1,3 +1,7 @@
 auth:
   cookie:
     secure: false
+media:
+  publicBaseUrl: "http://localhost:3001/api/media"
+objectStorage:
+  localRootDir: ".storage"

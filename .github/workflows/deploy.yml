@@ -1,10 +1,9 @@
-name: Deploy
+# 本番デプロイは親リポジトリ（macching-app）の workflow に任せる。
+# 緊急時のみ手動実行。今後 stg は develop 向け workflow を別途追加予定。
+name: Deploy Production (manual)
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   deploy:
@@ -29,4 +28,3 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: onion-hono-sample

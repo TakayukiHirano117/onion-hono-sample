@@ -172,9 +172,16 @@ bun run dev:worker
 | 環境 | 設定の読み込み |
 |------|--------------|
 | ローカル Bun | `config/*.yml`（`NodeConfigProvider`） |
-| Cloudflare Workers | `wrangler.toml` の vars（`EnvConfigProvider`） |
+| Cloudflare Workers | `wrangler.toml` の vars + bindings（`EnvConfigProvider`） |
 
-設定の形は `src/Cmd/config/app_config.ts` の `AppConfig` で統一しています。Provider の差し替えだけで設定ソースを変更できます。
+`wrangler.toml` の主な vars:
+
+| 変数 | 用途 |
+|---|---|
+| `AUTH_COOKIE_SECURE` | Cookie の Secure フラグ |
+| `MEDIA_PUBLIC_BASE_URL` | フロントの `/api/media` ベース URL（`topImageUrl` 生成用） |
+
+Cloudflare セットアップ手順: [`scripts/cloudflare-setup.md`](scripts/cloudflare-setup.md)
 
 ## 参考
 

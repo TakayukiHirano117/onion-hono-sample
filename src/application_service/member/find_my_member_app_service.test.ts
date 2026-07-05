@@ -10,6 +10,7 @@ import { Gender } from "../../domain/profile/vo/gender";
 import { Email } from "../../domain/shared/vo/email";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
+import { StubTopImageUrlResolver } from "../shared/stub_top_image_url_resolver";
 import { FindMyMemberAppService } from "./find_my_member_app_service";
 
 const memberId = "00000000-0000-4000-8000-000000000001";
@@ -40,6 +41,8 @@ class InMemoryProfileRepository implements IProfileRepository {
   async findByMemberId(memberId: UUID): Promise<Profile | null> {
     return this.profiles.find((profile) => profile.memberId.value === memberId.value) ?? null;
   }
+
+  async updateTopImagePath(): Promise<void> {}
 }
 
 const createMember = (): Member =>
@@ -58,6 +61,7 @@ describe("FindMyMemberAppService", () => {
     const service = new FindMyMemberAppService(
       new InMemoryMemberRepository([createMember()]),
       new InMemoryProfileRepository([createProfile()]),
+      new StubTopImageUrlResolver(),
     );
 
     const result = await service.execute(memberId);
@@ -69,6 +73,7 @@ describe("FindMyMemberAppService", () => {
       bio: "hello",
       gender: "male",
       birthDate: "1990/01/01",
+      topImageUrl: null,
     });
   });
 
@@ -76,6 +81,7 @@ describe("FindMyMemberAppService", () => {
     const service = new FindMyMemberAppService(
       new InMemoryMemberRepository([]),
       new InMemoryProfileRepository([createProfile()]),
+      new StubTopImageUrlResolver(),
     );
 
     await expect(service.execute(memberId)).rejects.toThrow(NotFoundError);
@@ -85,6 +91,7 @@ describe("FindMyMemberAppService", () => {
     const service = new FindMyMemberAppService(
       new InMemoryMemberRepository([createMember()]),
       new InMemoryProfileRepository([]),
+      new StubTopImageUrlResolver(),
     );
 
     await expect(service.execute(memberId)).rejects.toThrow(NotFoundError);

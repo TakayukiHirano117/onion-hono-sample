@@ -51,6 +51,7 @@ export interface ProfileTable {
   bio: string;
   gender: string;
   birth_date: string;
+  top_image_path: string | null;
   created_at: ColumnType<Date, never, never>;
   updated_at: ColumnType<Date, never, never>;
 }
