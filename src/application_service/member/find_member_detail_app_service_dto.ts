@@ -6,4 +6,5 @@ export type FindMemberDetailAppServiceDto = {
   readonly gender: string;
   readonly birthDate: string;
   readonly hasLiked: boolean;
+  readonly topImageUrl: string | null;
 };

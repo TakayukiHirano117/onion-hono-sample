@@ -17,6 +17,7 @@ describe('Profile', () => {
       bio,
       gender,
       birthDate,
+      null,
     )
 
     expect(profile).toBeInstanceOf(Profile)

@@ -6,6 +6,8 @@ export class NodeConfigProvider implements ConfigProvider {
   load() {
     return parseAppConfig({
       auth: nodeConfig.get<unknown>("auth"),
+      media: nodeConfig.get<unknown>("media"),
+      objectStorage: nodeConfig.get<unknown>("objectStorage"),
     });
   }
 }

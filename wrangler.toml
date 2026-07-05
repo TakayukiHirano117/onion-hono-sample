@@ -3,15 +3,24 @@ main = "src/cmd/worker.ts"
 compatibility_date = "2026-06-20"
 compatibility_flags = ["nodejs_compat"]
 
+workers_dev = false
+preview_urls = false
+
 # Supabase 接続後に Hyperdrive を作成し、id を差し替えてください。
-# npx wrangler hyperdrive create onion-hono-db --connection-string="<supabase-connection-string>"
+# npx wrangler hyperdrive create onion-hono-db --connection-string="<supabase-direct-connection-string>"
 [[hyperdrive]]
 binding = "HYPERDRIVE"
-id = "REPLACE_WITH_HYPERDRIVE_ID"
+id = "e55fb79926734700ae32f75b42e2c9f0"
+
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "macching-photos"
 
 [vars]
 AUTH_COOKIE_SECURE = "true"
+MEDIA_PUBLIC_BASE_URL = "http://localhost:3001/api/media"
 
 [env.dev]
 [env.dev.vars]
 AUTH_COOKIE_SECURE = "false"
+MEDIA_PUBLIC_BASE_URL = "https://macching-app.hirano-ta.workers.dev/api/media"

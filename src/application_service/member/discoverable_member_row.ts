@@ -1,7 +1,7 @@
-export type FindAllMemberAppServiceDto = {
+export type DiscoverableMemberRow = {
   readonly id: string;
   readonly name: string;
   readonly email: string;
   readonly hasLiked: boolean;
-  readonly topImageUrl: string | null;
+  readonly topImagePath: string | null;
 };

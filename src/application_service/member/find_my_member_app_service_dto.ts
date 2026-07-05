@@ -5,4 +5,5 @@ export type FindMyMemberAppServiceDto = {
   readonly bio: string;
   readonly gender: string;
   readonly birthDate: string;
+  readonly topImageUrl: string | null;
 };

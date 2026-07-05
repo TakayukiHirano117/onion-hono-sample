@@ -6,8 +6,9 @@ import { BirthDate } from "../../domain/profile/vo/birth_date";
 import { Gender } from "../../domain/profile/vo/gender";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
+import { StubTopImageUrlResolver } from "../shared/stub_top_image_url_resolver";
 import { FindAllMemberAppService } from "./find_all_member_app_service";
-import type { FindAllMemberAppServiceDto } from "./find_all_member_app_service_dto";
+import type { DiscoverableMemberRow } from "./discoverable_member_row";
 import type { IFindDiscoverableMembersQueryService } from "./i_find_discoverable_members_query_service";
 
 const viewerMemberId = "00000000-0000-4000-8000-000000000001";
@@ -20,6 +21,8 @@ class InMemoryProfileRepository implements IProfileRepository {
   async findByMemberId(memberId: UUID): Promise<Profile | null> {
     return this.profiles.find((profile) => profile.memberId.value === memberId.value) ?? null;
   }
+
+  async updateTopImagePath(): Promise<void> {}
 }
 
 class StubFindDiscoverableMembersQueryService implements IFindDiscoverableMembersQueryService {
@@ -28,7 +31,7 @@ class StubFindDiscoverableMembersQueryService implements IFindDiscoverableMember
     genders: string[] | null;
   }[] = [];
 
-  constructor(private readonly result: FindAllMemberAppServiceDto[] = []) {}
+  constructor(private readonly result: DiscoverableMemberRow[] = []) {}
 
   async execute(input: { viewerMemberId: string; genders: string[] | null }) {
     this.calls.push(input);
@@ -52,11 +55,13 @@ describe("FindAllMemberAppService", () => {
         name: "female member",
         email: "female@example.com",
         hasLiked: false,
+        topImagePath: null,
       },
     ]);
     const service = new FindAllMemberAppService(
       new InMemoryProfileRepository([createProfile(viewerMemberId, "male")]),
       queryService,
+      new StubTopImageUrlResolver(),
     );
 
     const result = await service.execute(viewerMemberId);
@@ -73,6 +78,7 @@ describe("FindAllMemberAppService", () => {
         name: "female member",
         email: "female@example.com",
         hasLiked: false,
+        topImageUrl: null,
       },
     ]);
   });
@@ -82,6 +88,7 @@ describe("FindAllMemberAppService", () => {
     const service = new FindAllMemberAppService(
       new InMemoryProfileRepository([createProfile(viewerMemberId, "female")]),
       queryService,
+      new StubTopImageUrlResolver(),
     );
 
     await service.execute(viewerMemberId);
@@ -99,6 +106,7 @@ describe("FindAllMemberAppService", () => {
     const service = new FindAllMemberAppService(
       new InMemoryProfileRepository([createProfile(viewerMemberId, "other")]),
       queryService,
+      new StubTopImageUrlResolver(),
     );
 
     await service.execute(viewerMemberId);
@@ -115,6 +123,7 @@ describe("FindAllMemberAppService", () => {
     const service = new FindAllMemberAppService(
       new InMemoryProfileRepository([]),
       new StubFindDiscoverableMembersQueryService(),
+      new StubTopImageUrlResolver(),
     );
 
     await expect(service.execute(viewerMemberId)).rejects.toThrow(NotFoundError);
