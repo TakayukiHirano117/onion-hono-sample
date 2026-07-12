@@ -3,14 +3,13 @@
 マッチングアプリを想定した API の学習・実験用プロジェクトです。  
 DDD とオニオンアーキテクチャの責務分離を意識して実装しています。
 
-## このプロジェクトでできること
+Web UI は親リポジトリの [`next-front`](https://github.com/TakayukiHirano117/next-front)（BFF）が担当します。全体構成は [macching-app/README.md](https://github.com/TakayukiHirano117/macching-app/blob/main/README.md) を参照。
 
-- 会員の登録・一覧閲覧
-- 会員同士のいいね送信
-- メールアドレス + パスワードによるログイン / ログアウト（Cookie + サーバーセッション）
-- 認証が必要な API への middleware によるアクセス制御
+## API ルート
 
-将来的にはマッチング成立（相互いいね）や、パスワードレス認証などへの拡張を想定しています。
+```bash
+make routes
+```
 
 ## 技術スタック
 
@@ -24,6 +23,8 @@ DDD とオニオンアーキテクチャの責務分離を意識して実装し�
 | DB（本番） | Supabase PostgreSQL + Hyperdrive |
 | Query Builder | Kysely |
 | バリデーション | Zod |
+| オブジェクトストレージ（ローカル） | ファイルシステム（`.storage/`） |
+| オブジェクトストレージ（本番） | Cloudflare R2 |
 | コンテナ | Docker / Docker Compose |
 
 ## アーキテクチャ
@@ -36,45 +37,19 @@ Presentation → ApplicationService → Domain
                   Infra
 ```
 
-### レイヤーと責務
-
-| レイヤー | ディレクトリ | 責務 |
-|----------|-------------|------|
-| Presentation | `src/Presentation` | HTTP リクエストの受け取り、簡易バリデーション、レスポンス返却 |
-| ApplicationService | `src/ApplicationService` | ユースケースの組み立て・実行 |
-| Domain | `src/Domain` | Entity、Value Object、ビジネスルール、Repository interface |
-| Infra | `src/Infra` | DB 永続化、外部 API、DomainService の実装など技術的詳細 |
-| Cmd | `src/Cmd` | Middleware などアプリケーション起動周りの横断関心事 |
-
-### 依存のルール
-
-- **Domain** はどの層にも依存しない。ライブラリ依存も可能な限り避ける
-- **ApplicationService** は Domain と Infra のオブジェクトを使ってユースケースを組み立てる
-- **Infra** は Repository 実装・QueryService 実装・DomainService 実装を担う
-- **Presentation** は ApplicationService を呼び出す。Domain / Infra を直接呼ばない
+レイヤー責務・依存ルールは [`.cursor/rules/ddd-onion-architecture.mdc`](.cursor/rules/ddd-onion-architecture.mdc) を参照。
 
 ### 集約
 
-| 集約 | 主な概念 |
-|------|----------|
-| Member | 会員（名前、メールアドレス、パスワード） |
-| Profile | プロフィール（自己紹介、性別、生年月日） |
-| Like | いいね（送信元・送信先の会員） |
-| Match | マッチング（テーブルのみ用意、ロジックは未実装） |
+集約は `src/domain/<集約名>/` 配下に、ディレクトリ名と同名の `.ts`（集約ルートの Entity）として置く。現状の集約はそこを見ること。
 
 認証まわり（`sessions` テーブル、Cookie、middleware）はインフラ都合の横断関心事として扱い、Domain 集約には含めていません。
 
-### ユースケースの例
+### ユースケース
 
 ApplicationService は「ユーザーができること」を 1 ファイル・1 `execute` メソッドで表現します。
 
-```
-create_member_app_service.ts   … 会員を登録する
-find_all_member_app_service.ts … 会員一覧を取得する
-send_like_app_service.ts       … いいねを送る
-login_app_service.ts           … ログインする
-logout_app_service.ts          … ログアウトする
-```
+実装一覧は `src/application_service/` 以下を参照。
 
 ### Presentation の設計方針
 
@@ -82,108 +57,22 @@ logout_app_service.ts          … ログアウトする
 - 親 controller（例: `MemberController`）がルーティングと DI を担当
 - バリデーションは「パラメータが来ているか」程度に留め、ビジネスルールは Domain 層で検証する
 
-### Infra の主な構成
+### Infra
 
-| 種別 | 役割 | 例 |
-|------|------|-----|
-| Repository | 集約の永続化 | `MemberRepositoryImpl` |
-| QueryService | 読み取り専用のクエリ | `FindByEmailForLoginQueryServiceImpl` |
-| DomainService | Domain interface の実装 | `PasswordVerificationDomainService` |
-| shared | UUID 生成、パスワードハッシュ、セッション管理など | `PasswordHashGenerator`, `LoginSessionGeneratorImpl` |
+Repository は集約の永続化を担う。それ以外（QueryService、DomainService 実装、オブジェクトストレージ、セッションなど）は技術的な関心事の実装。配置・責務の詳細は [`.cursor/rules/ddd-onion-architecture.mdc`](.cursor/rules/ddd-onion-architecture.mdc) を参照。
 
-Repository は Domain 集約用。`sessions` のような認証用テーブルは Repository ではなく shared / QueryService / Writer として扱います。
+トップ画像の保存方針は [`.cursor/rules/object-storage-and-top-image.mdc`](.cursor/rules/object-storage-and-top-image.mdc)。
 
 ## ディレクトリ構成
 
-```
-src/
-├── Domain/
-│   ├── Member/
-│   ├── Profile/
-│   ├── Like/
-│   └── shared/vo/
-├── ApplicationService/
-│   ├── Member/
-│   ├── Like/
-│   └── Auth/
-├── Infra/
-│   ├── Repository/
-│   ├── QueryService/
-│   ├── DomainService/
-│   ├── Database/
-│   └── shared/
-├── Presentation/
-│   ├── Member/
-│   ├── Like/
-│   └── auth/
-├── Cmd/
-│   ├── config/
-│   ├── bun.ts
-│   ├── worker.ts
-│   ├── index.ts
-│   └── middlewares/
-```
-
-## ローカル開発
-
 ```bash
-docker compose up db
-bun install
-bun run migrate
-bun run dev
+make tree
 ```
-
-API は `http://localhost:3000/api/v1` で起動します。
-
-## Cloudflare Workers へのデプロイ
-
-本番は Cloudflare Workers + Hyperdrive + Supabase PostgreSQL を想定しています。
-
-### 事前準備
-
-1. [Supabase](https://supabase.com/) で PostgreSQL プロジェクトを作成し、接続文字列を取得
-2. Cloudflare で Hyperdrive を作成し、`wrangler.toml` の `REPLACE_WITH_HYPERDRIVE_ID` を差し替え
-
-```bash
-npx wrangler login
-npx wrangler hyperdrive create onion-hono-db --connection-string="<supabase-connection-string>"
-```
-
-3. マイグレーションを Supabase に適用
-
-```bash
-DATABASE_URL="<supabase-connection-string>" bun run migrate
-```
-
-### デプロイ
-
-```bash
-bun run deploy
-```
-
-Workers ローカル確認:
-
-```bash
-bun run dev:worker
-```
-
-### 設定
-
-| 環境 | 設定の読み込み |
-|------|--------------|
-| ローカル Bun | `config/*.yml`（`NodeConfigProvider`） |
-| Cloudflare Workers | `wrangler.toml` の vars + bindings（`EnvConfigProvider`） |
-
-`wrangler.toml` の主な vars:
-
-| 変数 | 用途 |
-|---|---|
-| `AUTH_COOKIE_SECURE` | Cookie の Secure フラグ |
-| `MEDIA_PUBLIC_BASE_URL` | フロントの `/api/media` ベース URL（`topImageUrl` 生成用） |
-
-Cloudflare セットアップ手順: [`scripts/cloudflare-setup.md`](scripts/cloudflare-setup.md)
 
 ## 参考
 
 - 実装ルールの詳細: [AGENTS.md](./AGENTS.md)
+- 層構造ルール: [`.cursor/rules/ddd-onion-architecture.mdc`](.cursor/rules/ddd-onion-architecture.mdc)
+- トップ画像・R2: [`.cursor/rules/object-storage-and-top-image.mdc`](.cursor/rules/object-storage-and-top-image.mdc)
+- Cloudflare セットアップ: [`scripts/cloudflare-setup.md`](scripts/cloudflare-setup.md)
 - 今後の予定: [todo.md](./todo.md)
