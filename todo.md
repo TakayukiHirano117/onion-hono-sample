@@ -3,8 +3,13 @@
   - [ ] Dockerにメールサーバー立てる
 - [ ] ユースケース層にDTOを作る
   - [ ] プレゼンテーション層でドメインの依存が発生するので。
+  - [ ] input, response
+  - [ ] responseのDTOはユースケースに直書きしてもいいも
 - [ ] ローカルでactions試せる様にしたい。
 - [ ] 重複ログインさせたくない
-- [x] Cloudflare Workers にデプロイ（Hyperdrive + Supabase）
 - [ ] supabase設定
+- [ ] きもい命名を直す
 - [ ] 画像のcloud flareへの保存
+- [ ] エラーハンドリング
+  - [ ] domainの例外をhttp変換
+- [ ] private constructorにして、dbからの再取得と新規作成用で分離

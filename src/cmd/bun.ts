@@ -1,5 +1,5 @@
 import { createDbFromDatabaseUrl } from "../infra/database/database";
-import { LocalObjectStorageImpl } from "../infra/object_storage/local_object_storage_impl";
+import { LocalObjectStorageImpl } from "../infra/shared/local_object_storage_impl";
 import { TopImageUrlResolverImpl } from "../infra/shared/top_image_url_resolver_impl";
 import { NodeConfigProvider } from "./config/node_config_provider";
 import { createApp } from "./index";
