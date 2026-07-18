@@ -11,14 +11,31 @@ export class Member {
     private readonly _email: Email,
   ) { }
 
-  static reconstruct(id: UUID, name: Name, email: Email): Member {
-    return new Member(id, name, email);
+  static reconstruct(
+    id: UUID,
+    name: Name,
+    email: Email,
+  ): Member {
+    return new Member(
+      id,
+      name,
+      email,
+    );
   }
 
-  static create(id: UUID, name: Name, email: Email): Member {
-    return new Member(id, name, email);
+  static create(
+    id: UUID,
+    name: Name,
+    email: Email,
+  ): Member {
+    return new Member(
+      id,
+      name,
+      email,
+    );
   }
 
+  // TODO: sentLikeCountThisMonthを取得するQSを別途準備
   canSendLike(sentLikeCountThisMonth: number): boolean {
     return sentLikeCountThisMonth < Member.MAX_MONTHLY_LIKE_COUNT;
   }
