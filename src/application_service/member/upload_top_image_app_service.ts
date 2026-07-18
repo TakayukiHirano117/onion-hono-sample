@@ -6,12 +6,12 @@ import { NotFoundError } from "../shared/exception/application_error";
 import type { IObjectStorage } from "../shared/i_object_storage";
 import type { ITopImageUrlResolver } from "../shared/i_top_image_url_resolver";
 
-type UploadTopImageInput = {
+type RequestDto = {
   viewerMemberId: string;
   topImage: TopImageUpload;
 };
 
-type UploadTopImageResult = {
+type ResponseDto = {
   topImageUrl: string;
 };
 
@@ -22,7 +22,7 @@ export class UploadTopImageAppService {
     private readonly _topImageUrlResolver: ITopImageUrlResolver,
   ) {}
 
-  async execute(input: UploadTopImageInput): Promise<UploadTopImageResult> {
+  async execute(input: RequestDto): Promise<ResponseDto> {
     const memberId = new UUID(input.viewerMemberId);
 
     const profile = await this._profileRepository.findByMemberId(memberId);

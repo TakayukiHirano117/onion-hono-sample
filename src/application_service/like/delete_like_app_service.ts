@@ -3,7 +3,7 @@ import { IMemberRepository } from "../../domain/member/i_member_repository";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
 
-type DeleteLikeInput = {
+type RequestDto = {
   fromMemberId: string;
   toMemberId: string;
 };
@@ -14,7 +14,7 @@ export class DeleteLikeAppService {
     private readonly _memberRepository: IMemberRepository,
   ) {}
 
-  async execute(input: DeleteLikeInput): Promise<void> {
+  async execute(input: RequestDto): Promise<void> {
     const fromMemberId = new UUID(input.fromMemberId);
     const toMemberId = new UUID(input.toMemberId);
 

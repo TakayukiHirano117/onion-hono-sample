@@ -2,7 +2,7 @@ import { TopImagePath } from "../../domain/profile/vo/top_image_path";
 import type { ITopImageUrlResolver } from "../shared/i_top_image_url_resolver";
 import { IFindLikedMembersQueryService } from "./i_find_liked_members_query_service";
 
-export type FindLikedMembersAppServiceDto = {
+export type ResponseDto = {
   readonly id: string;
   readonly name: string;
   readonly email: string;
@@ -16,7 +16,7 @@ export class FindLikedMembersAppService {
     private readonly _topImageUrlResolver: ITopImageUrlResolver,
   ) {}
 
-  async execute(viewerMemberId: string): Promise<FindLikedMembersAppServiceDto[]> {
+  async execute(viewerMemberId: string): Promise<ResponseDto[]> {
     const rows = await this._findLikedMembersQueryService.execute(viewerMemberId);
 
     return rows.map((row) => ({

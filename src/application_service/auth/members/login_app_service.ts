@@ -8,9 +8,15 @@ import { UUIDGenerator } from "../../../infra/shared/uuid_generator";
 import { IFindByEmailForLoginQueryService } from "../../../application_service/member/i_find_by_email_for_login_query_service";
 import { UnauthorizedError } from "../../shared/exception/application_error";
 
-type LoginInput = {
+type RequestDto = {
   email: string;
   password: string;
+};
+
+type ResponseDto = {
+  sessionId: string;
+  expiresAt: Date;
+  member: Member;
 };
 
 export class LoginAppService {
@@ -21,7 +27,7 @@ export class LoginAppService {
     private readonly _loginSessionGenerator: ILoginSessionGenerator
   ) { }
 
-  async execute(input: LoginInput): Promise<{ sessionId: string; expiresAt: Date; member: Member }> {
+  async execute(input: RequestDto): Promise<ResponseDto> {
     const email = new Email(input.email);
     const result = await this._findByEmailForLoginQueryService.execute(email);
     if (!result) {

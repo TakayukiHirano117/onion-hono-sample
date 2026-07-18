@@ -1,10 +1,6 @@
 - [ ] DIコンテナ
 - [ ] HTTPOnlyCookieからSupabaseでの管理に移行。その前に6桁の暗証番号方式も試したい。
   - [ ] Dockerにメールサーバー立てる
-- [ ] ユースケース層にDTOを作る
-  - [ ] プレゼンテーション層でドメインの依存が発生するので。
-  - [ ] input, response
-  - [ ] responseのDTOはユースケースに直書きしてもいいも
 - [ ] ローカルでactions試せる様にしたい。
 - [ ] 重複ログインさせたくない
 - [ ] supabase設定
@@ -12,4 +8,3 @@
 - [ ] 画像のcloud flareへの保存
 - [ ] エラーハンドリング
   - [ ] domainの例外をhttp変換
-- [ ] private constructorにして、dbからの再取得と新規作成用で分離

@@ -3,7 +3,7 @@ import { IProfileRepository } from "../../domain/profile/i_profile_repository";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
 import type { ITopImageUrlResolver } from "../shared/i_top_image_url_resolver";
-export type FindMypageAppServiceDto = {
+export type ResponseDto = {
   readonly id: string;
   readonly name: string;
   readonly email: string;
@@ -20,7 +20,7 @@ export class FindMypageAppService {
     private readonly _topImageUrlResolver: ITopImageUrlResolver,
   ) {}
 
-  async execute(viewerMemberId: string): Promise<FindMypageAppServiceDto> {
+  async execute(viewerMemberId: string): Promise<ResponseDto> {
     const memberId = new UUID(viewerMemberId);
 
     const member = await this._memberRepository.findById(memberId);

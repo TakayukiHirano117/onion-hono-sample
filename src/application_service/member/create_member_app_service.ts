@@ -16,7 +16,7 @@ import type { ITransactionManager } from "../../infra/shared/i_transaction_manag
 import { UUIDGenerator } from "../../infra/shared/uuid_generator";
 import { IPasswordHashGenerator } from "../../infra/shared/i_password_hash_generator";
 
-type CreateMemberInput = {
+type RequestDto = {
   name: string;
   email: string;
   rawPassword: string;
@@ -37,7 +37,7 @@ export class CreateMemberAppService {
     private readonly _objectStorage: IObjectStorage,
   ) {}
 
-  async execute(input: CreateMemberInput): Promise<void> {
+  async execute(input: RequestDto): Promise<void> {
     const email = new Email(input.email);
     await this._memberDomainService.isEmailAlreadyRegistered(email);
 

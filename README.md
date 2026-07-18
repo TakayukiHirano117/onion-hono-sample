@@ -27,6 +27,25 @@ make routes
 | オブジェクトストレージ（本番） | Cloudflare R2 |
 | コンテナ | Docker / Docker Compose |
 
+## Git ブランチ戦略
+
+| ブランチ | 役割 |
+|----------|------|
+| `main` | 本番（production） |
+| `develop` | ステージング（stg） |
+| `epic/*` | まとまった機能単位（例: いいね機能一式） |
+| `feature/*` | epic を進めるための小タスク（例: 〇〇 API の実装） |
+
+流れのイメージ:
+
+```
+feature/*  →  epic/*  →  develop（stg）  →  main（本番）
+```
+
+- 実装は `feature/*` で行い、完了したら親の `epic/*` へ合流する
+- epic が揃ったら `develop` へ合流し、stg で確認する
+- 本番反映は `develop` から `main` へ合流する
+
 ## アーキテクチャ
 
 オニオンアーキテクチャを採用し、外側の層が内側の層に依存する形で構成しています。
@@ -56,7 +75,12 @@ Repository の行マッピングでは `reconstruct` を使う。詳細は [`.cu
 
 ApplicationService は「ユーザーができること」を 1 ファイル・1 `execute` メソッドで表現します。
 
-input / response の DTO は対応する `*_app_service.ts` に直書きし、`*_app_service_dto.ts` など別ファイルには切らない。詳細は [`.cursor/rules/ddd-onion-architecture.mdc`](.cursor/rules/ddd-onion-architecture.mdc)。
+DTO は対応する `*_app_service.ts` に直書きし、`*_app_service_dto.ts` など別ファイルには切らない。命名はユースケース共通で次のとおり。
+
+- 入力: `RequestDto`
+- 出力: `ResponseDto`
+
+詳細は [`.cursor/rules/ddd-onion-architecture.mdc`](.cursor/rules/ddd-onion-architecture.mdc)。
 
 実装一覧は `src/application_service/` 以下を参照。
 

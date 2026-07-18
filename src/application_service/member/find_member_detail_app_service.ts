@@ -4,7 +4,7 @@ import { IProfileRepository } from "../../domain/profile/i_profile_repository";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
 import type { ITopImageUrlResolver } from "../shared/i_top_image_url_resolver";
-export type FindMemberDetailAppServiceDto = {
+export type ResponseDto = {
   readonly id: string;
   readonly name: string;
   readonly email: string;
@@ -15,7 +15,7 @@ export type FindMemberDetailAppServiceDto = {
   readonly topImageUrl: string | null;
 };
 
-type FindMemberDetailInput = {
+type RequestDto = {
   memberId: string;
   viewerMemberId: string;
 };
@@ -28,7 +28,7 @@ export class FindMemberDetailAppService {
     private readonly _topImageUrlResolver: ITopImageUrlResolver,
   ) {}
 
-  async execute(input: FindMemberDetailInput): Promise<FindMemberDetailAppServiceDto> {
+  async execute(input: RequestDto): Promise<ResponseDto> {
     const memberId = new UUID(input.memberId);
     const viewerMemberId = new UUID(input.viewerMemberId);
 
