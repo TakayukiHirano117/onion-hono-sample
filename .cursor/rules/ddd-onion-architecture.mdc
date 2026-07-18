@@ -34,6 +34,7 @@ alwaysApply: false
 - 原則として 1 ユースケースにつき `execute` メソッドを 1 つ持つ。
 - QueryService の interface は `src/ApplicationService` 以下に配置する。
 - ApplicationService 層は Domain 層と Infra 層のオブジェクトを用いてユースケースを組み立てる。
+- response / input の DTO は別ファイルに切らず、対応する `*_app_service.ts` に直書きする。
 
 ## Presentation
 

@@ -13,7 +13,7 @@ import { FindAllMemberController } from "../presentation/member/find_all_member_
 import { FindMemberDetailController } from "../presentation/member/find_member_detail_controller";
 import { FindAllMemberAppService } from "../application_service/member/find_all_member_app_service";
 import { FindMemberDetailAppService } from "../application_service/member/find_member_detail_app_service";
-import { FindMyMemberAppService } from "../application_service/member/find_my_member_app_service";
+import { FindMypageAppService } from "../application_service/member/find_mypage_app_service";
 import { MemberRepositoryImpl } from "../infra/repository/member_repository_impl";
 import { CreateMemberController } from "../presentation/member/create_member_controller";
 import { CreateMemberAppService } from "../application_service/member/create_member_app_service";
@@ -41,7 +41,7 @@ import { LoginSessionGeneratorImpl } from "../infra/shared/login_session_generat
 import { AuthMiddleware } from "./middlewares/members/auth_middeware";
 import { LogoutController } from "../presentation/auth/members/logout_controller";
 import { MypageController } from "../presentation/mypage/mypage_controller";
-import { FindMyMemberController } from "../presentation/mypage/find_my_member_controller";
+import { FindMypageController } from "../presentation/mypage/find_mypage_controller";
 import { UploadTopImageController } from "../presentation/mypage/upload_top_image_controller";
 import { UploadTopImageAppService } from "../application_service/member/upload_top_image_app_service";
 import { GetMediaController, MediaController } from "../presentation/media/media_controller";
@@ -103,7 +103,7 @@ export function createApp(
     likeRepository,
     deps.topImageUrlResolver,
   );
-  const findMyMemberAppService = new FindMyMemberAppService(
+  const findMypageAppService = new FindMypageAppService(
     memberRepository,
     profileRepository,
     deps.topImageUrlResolver,
@@ -165,7 +165,7 @@ export function createApp(
   app.route("/members", memberController.setUpRoutes());
 
   const mypageController = new MypageController(
-    new FindMyMemberController(findMyMemberAppService),
+    new FindMypageController(findMypageAppService),
     new UploadTopImageController(uploadTopImageAppService),
     authMiddleware,
   );

@@ -4,7 +4,16 @@ import { IProfileRepository } from "../../domain/profile/i_profile_repository";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
 import type { ITopImageUrlResolver } from "../shared/i_top_image_url_resolver";
-import { FindMemberDetailAppServiceDto } from "./find_member_detail_app_service_dto";
+export type FindMemberDetailAppServiceDto = {
+  readonly id: string;
+  readonly name: string;
+  readonly email: string;
+  readonly bio: string;
+  readonly gender: string;
+  readonly birthDate: string;
+  readonly hasLiked: boolean;
+  readonly topImageUrl: string | null;
+};
 
 type FindMemberDetailInput = {
   memberId: string;

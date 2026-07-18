@@ -23,6 +23,7 @@ export class Profile {
     return new Profile(memberId, bio, gender, birthDate, topImagePath);
   }
 
+  // [TODO: hirano]命名が微妙なので意図がわかるものに変更する
   withTopImagePath(topImagePath: TopImagePath | null): Profile {
     return new Profile(
       this._memberId,

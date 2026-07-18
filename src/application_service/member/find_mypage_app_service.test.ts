@@ -11,7 +11,7 @@ import { Email } from "../../domain/shared/vo/email";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
 import { StubTopImageUrlResolver } from "../shared/stub_top_image_url_resolver";
-import { FindMyMemberAppService } from "./find_my_member_app_service";
+import { FindMypageAppService } from "./find_mypage_app_service";
 
 const memberId = "00000000-0000-4000-8000-000000000001";
 
@@ -56,9 +56,9 @@ const createProfile = (): Profile =>
     new BirthDate("1990/01/01"),
   );
 
-describe("FindMyMemberAppService", () => {
+describe("FindMypageAppService", () => {
   it("自分の会員とプロフィールの詳細を返す", async () => {
-    const service = new FindMyMemberAppService(
+    const service = new FindMypageAppService(
       new InMemoryMemberRepository([createMember()]),
       new InMemoryProfileRepository([createProfile()]),
       new StubTopImageUrlResolver(),
@@ -78,7 +78,7 @@ describe("FindMyMemberAppService", () => {
   });
 
   it("会員が存在しない場合はエラーにする", async () => {
-    const service = new FindMyMemberAppService(
+    const service = new FindMypageAppService(
       new InMemoryMemberRepository([]),
       new InMemoryProfileRepository([createProfile()]),
       new StubTopImageUrlResolver(),
@@ -88,7 +88,7 @@ describe("FindMyMemberAppService", () => {
   });
 
   it("プロフィールが存在しない場合はエラーにする", async () => {
-    const service = new FindMyMemberAppService(
+    const service = new FindMypageAppService(
       new InMemoryMemberRepository([createMember()]),
       new InMemoryProfileRepository([]),
       new StubTopImageUrlResolver(),

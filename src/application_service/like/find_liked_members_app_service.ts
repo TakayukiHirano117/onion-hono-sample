@@ -1,7 +1,14 @@
 import { TopImagePath } from "../../domain/profile/vo/top_image_path";
 import type { ITopImageUrlResolver } from "../shared/i_top_image_url_resolver";
-import { FindLikedMembersAppServiceDto } from "./find_liked_members_app_service_dto";
 import { IFindLikedMembersQueryService } from "./i_find_liked_members_query_service";
+
+export type FindLikedMembersAppServiceDto = {
+  readonly id: string;
+  readonly name: string;
+  readonly email: string;
+  readonly hasLiked: boolean;
+  readonly topImageUrl: string | null;
+};
 
 export class FindLikedMembersAppService {
   constructor(
