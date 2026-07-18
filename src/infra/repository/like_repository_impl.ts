@@ -75,6 +75,10 @@ export class LikeRepositoryImpl implements ILikeRepository {
   }
 
   private toLike(row: LikeRow): Like {
-    return new Like(new UUID(row.id), new UUID(row.from_member_id), new UUID(row.to_member_id));
+    return Like.reconstruct(
+      new UUID(row.id),
+      new UUID(row.from_member_id),
+      new UUID(row.to_member_id),
+    );
   }
 }

@@ -56,7 +56,7 @@ export class ProfileRepositoryImpl implements IProfileRepository {
   }
 
   private toProfile(row: ProfileRow): Profile {
-    return new Profile(
+    return Profile.reconstruct(
       new UUID(row.member_id),
       new Bio(row.bio),
       new Gender(row.gender),

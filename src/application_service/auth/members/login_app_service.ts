@@ -36,7 +36,7 @@ export class LoginAppService {
     const uuid = this._uuidGenerator.execute();
     const session = await this._loginSessionGenerator.execute(uuid, result.id);
 
-    const member = Member.create(
+    const member = Member.reconstruct(
       new UUID(result.id),
       new Name(result.name),
       new Email(result.email),

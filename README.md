@@ -43,11 +43,20 @@ Presentation → ApplicationService → Domain
 
 集約は `src/domain/<集約名>/` 配下に、ディレクトリ名と同名の `.ts`（集約ルートの Entity）として置く。現状の集約はそこを見ること。
 
+集約ルート Entity は `private constructor` とし、生成は factory に分ける。
+
+- `create` … 新規作成（Entity 固有の不変条件をここで検証）
+- `reconstruct` … DB などからの再構築（Entity 固有バリデーションは基本しない）
+
+Repository の行マッピングでは `reconstruct` を使う。詳細は [`.cursor/rules/ddd-onion-architecture.mdc`](.cursor/rules/ddd-onion-architecture.mdc)。
+
 認証まわり（`sessions` テーブル、Cookie、middleware）はインフラ都合の横断関心事として扱い、Domain 集約には含めていません。
 
 ### ユースケース
 
 ApplicationService は「ユーザーができること」を 1 ファイル・1 `execute` メソッドで表現します。
+
+input / response の DTO は対応する `*_app_service.ts` に直書きし、`*_app_service_dto.ts` など別ファイルには切らない。詳細は [`.cursor/rules/ddd-onion-architecture.mdc`](.cursor/rules/ddd-onion-architecture.mdc)。
 
 実装一覧は `src/application_service/` 以下を参照。
 
