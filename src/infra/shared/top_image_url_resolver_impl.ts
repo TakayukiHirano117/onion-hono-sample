@@ -10,6 +10,10 @@ export class TopImageUrlResolverImpl implements ITopImageUrlResolver {
     }
 
     const baseUrl = this._publicBaseUrl.replace(/\/$/, "");
+    if (!baseUrl) {
+      throw new Error("トップ画像の公開URLベースが設定されていません。");
+    }
+
     return `${baseUrl}/${path.value}`;
   }
 }

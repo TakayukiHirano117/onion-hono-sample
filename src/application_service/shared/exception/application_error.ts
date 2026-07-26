@@ -3,6 +3,7 @@ export enum ApplicationErrorCode {
   UNAUTHORIZED = "UNAUTHORIZED",
   NOT_FOUND = "NOT_FOUND",
   CONFLICT = "CONFLICT",
+  TOO_MANY_REQUESTS = "TOO_MANY_REQUESTS",
 }
 
 export abstract class ApplicationError extends Error {
@@ -33,4 +34,8 @@ export class NotFoundError extends ApplicationError {
 
 export class ConflictError extends ApplicationError {
   readonly code = ApplicationErrorCode.CONFLICT;
+}
+
+export class TooManyRequestsError extends ApplicationError {
+  readonly code = ApplicationErrorCode.TOO_MANY_REQUESTS;
 }

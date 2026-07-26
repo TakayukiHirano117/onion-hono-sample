@@ -11,6 +11,32 @@ Web UI は親リポジトリの [`next-front`](https://github.com/TakayukiHirano
 make routes
 ```
 
+### トップ画像の 2 段階アップロード
+
+認証済み会員は、API サーバーを経由せず S3 に画像を送り、その後 API で確定する。
+
+1. `POST /api/v1/mypage/top-image/upload`
+   - JSON: `{ "contentType": "image/jpeg" }`
+   - 応答: `{ "status": "ok", "url": "...", "fields": { ... }, "uploadId": "..." }`
+   - `url` と `fields` を multipart/form-data に使い、画像本体を S3 へ直接 POST する
+2. `POST /api/v1/mypage/top-image/upload/complete`
+   - JSON: `{ "uploadId": "...", "contentType": "image/jpeg" }`
+   - 応答: `{ "status": "ok", "topImageUrl": "https://<CloudFrontドメイン>/photos/..." }`
+
+許可形式は JPEG、PNG、WebP。サイズ上限 5 MiB。署名有効期間 300 秒。
+
+S3 直接アップロード route の有効化には `AWS_REGION`、`AWS_S3_BUCKET`、`CLOUDFRONT_PUBLIC_BASE_URL` が必要。3項目が揃った Bun / AWS runtime だけが、S3 uploader と CloudFront resolver を組にした `directTopImageUpload` capability を注入する。AWS SDK の標準認証情報プロバイダーを使うため、ECS では Task Role を利用できる。
+
+complete は同じ `uploadId` の再実行に対応する。DB が対象キーを参照し、S3 object が存在する場合は同じ CloudFront URL を返す。pending の先行削除で Copy が失敗した場合も、DB と final object を再確認する。同一会員の complete 競合では、所有権を証明できない final object を削除せず S3 lifecycle cleanup に委ねる。DB 更新後の旧画像削除失敗はログへ残し、成功済みの更新を 500 にしない。
+
+`POST /api/v1/members` は画像なしで会員登録する。既存の `POST /api/v1/mypage/top-image` multipart API と R2 / ローカルファイル保存コードは Cloudflare 互換用に維持する。
+
+### R2 から S3 への移行順序
+
+既存 `profiles.top_image_path` を変更せず、R2 の全画像を同じキーで S3 へ先にコピーする。コピー後に AWS ECS の `ITopImageUrlResolver` を CloudFront ベース URL へ切り替える。この順序により、complete が S3 上の旧画像を削除できる。
+
+Cloudflare Worker は S3 capability を注入せず、S3 prepare / complete route を登録しない。既存 R2 用の `MEDIA_PUBLIC_BASE_URL` resolver と multipart route を維持する。AWS ECS では後続インフラフェーズで DB path の URL 解決を CloudFront へ統一する。S3 設定のない Local Bun も既存 Local multipart 処理だけを登録する。
+
 ## 技術スタック
 
 | 区分 | 採用技術 |
@@ -25,6 +51,8 @@ make routes
 | バリデーション | Zod |
 | オブジェクトストレージ（ローカル） | ファイルシステム（`.storage/`） |
 | オブジェクトストレージ（本番） | Cloudflare R2 |
+| 2 段階画像アップロード | Amazon S3 署名付き POST |
+| S3 画像配信 | Amazon CloudFront |
 | コンテナ | Docker / Docker Compose |
 
 ## Git ブランチ戦略

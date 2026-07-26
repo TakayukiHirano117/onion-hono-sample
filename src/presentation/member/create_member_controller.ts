@@ -1,7 +1,6 @@
 import { Context } from "hono";
 import { z } from "zod";
 import { CreateMemberAppService } from "../../application_service/member/create_member_app_service";
-import { TopImageUpload } from "../../domain/profile/vo/top_image_upload";
 import { BadRequestError } from "../../application_service/shared/exception/application_error";
 import { parseRequest } from "../shared/parse_request";
 
@@ -33,18 +32,7 @@ export class CreateMemberController {
         birthDate: body.birthDate,
       });
 
-      const topImageField = body.topImage;
-      let topImage: TopImageUpload | null = null;
-
-      if (topImageField instanceof File && topImageField.size > 0) {
-        const bytes = new Uint8Array(await topImageField.arrayBuffer());
-        topImage = new TopImageUpload(bytes, topImageField.type);
-      }
-
-      await this._createMemberAppService.execute({
-        ...fields,
-        topImage,
-      });
+      await this._createMemberAppService.execute(fields);
 
       return c.json({ status: "ok" }, 200);
     }
