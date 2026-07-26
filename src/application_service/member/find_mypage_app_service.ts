@@ -3,16 +3,24 @@ import { IProfileRepository } from "../../domain/profile/i_profile_repository";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
 import type { ITopImageUrlResolver } from "../shared/i_top_image_url_resolver";
-import { FindMyMemberAppServiceDto } from "./find_my_member_app_service_dto";
+export type ResponseDto = {
+  readonly id: string;
+  readonly name: string;
+  readonly email: string;
+  readonly bio: string;
+  readonly gender: string;
+  readonly birthDate: string;
+  readonly topImageUrl: string | null;
+};
 
-export class FindMyMemberAppService {
+export class FindMypageAppService {
   constructor(
     private readonly _memberRepository: IMemberRepository,
     private readonly _profileRepository: IProfileRepository,
     private readonly _topImageUrlResolver: ITopImageUrlResolver,
   ) {}
 
-  async execute(viewerMemberId: string): Promise<FindMyMemberAppServiceDto> {
+  async execute(viewerMemberId: string): Promise<ResponseDto> {
     const memberId = new UUID(viewerMemberId);
 
     const member = await this._memberRepository.findById(memberId);

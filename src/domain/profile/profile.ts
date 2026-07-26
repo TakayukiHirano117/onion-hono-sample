@@ -5,13 +5,23 @@ import { Bio } from "./vo/bio";
 import type { TopImagePath } from "./vo/top_image_path";
 
 export class Profile {
-  constructor(
+  private constructor(
     private readonly _memberId: UUID,
     private readonly _bio: Bio,
     private readonly _gender: Gender,
     private readonly _birthDate: BirthDate,
     private readonly _topImagePath: TopImagePath | null,
   ) {}
+
+  static reconstruct(
+    memberId: UUID,
+    bio: Bio,
+    gender: Gender,
+    birthDate: BirthDate,
+    topImagePath: TopImagePath | null,
+  ): Profile {
+    return new Profile(memberId, bio, gender, birthDate, topImagePath);
+  }
 
   static create(
     memberId: UUID,
@@ -23,6 +33,7 @@ export class Profile {
     return new Profile(memberId, bio, gender, birthDate, topImagePath);
   }
 
+  // [TODO: hirano]命名が微妙なので意図がわかるものに変更する
   withTopImagePath(topImagePath: TopImagePath | null): Profile {
     return new Profile(
       this._memberId,

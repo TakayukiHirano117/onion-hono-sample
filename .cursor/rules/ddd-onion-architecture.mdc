@@ -12,6 +12,10 @@ alwaysApply: false
 
 - `src/Domain` 以下に集約ごとのディレクトリを切り、Value Object と Entity を実装する。
 - Entity 名は、原則として `src/Domain` 直下の集約ディレクトリ名を lowercase にしたものを採用する。
+- 集約ルートの Entity は `private constructor` とし、生成は次の factory に分ける。
+  - `static create` … 新規作成用。Entity 固有の不変条件はここで検証する。
+  - `static reconstruct` … DB など永続化からの再構築用。Entity 固有バリデーションは基本しない（VO 生成時の検証は別）。
+- Repository 実装の行マッピングでは `reconstruct` を使う。外部から `new Entity` しない。
 - 必要に応じて、各集約ごとに Repository の interface を作成する。
 - Repository interface のファイル名は `i_集約名_repository.ts` とする。
 - DomainService の interface は `src/Domain` 以下に配置する。
@@ -34,6 +38,9 @@ alwaysApply: false
 - 原則として 1 ユースケースにつき `execute` メソッドを 1 つ持つ。
 - QueryService の interface は `src/ApplicationService` 以下に配置する。
 - ApplicationService 層は Domain 層と Infra 層のオブジェクトを用いてユースケースを組み立てる。
+- トップ画像の 2 段階アップロードに限り、承認済み設計の例外として `src/infra/shared/i_image_uploader.ts` の技術非依存 interface へ型依存してよい。AWS SDK や `S3ImageUploaderImpl` への直接依存は禁止する。詳細は `object-storage-and-top-image.mdc` を参照する。
+- DTO は対応する `*_app_service.ts` に直書きする。`*_app_service_dto.ts` など別ファイルには切らない。
+- 入力 DTO の型名は `RequestDto`、出力 DTO の型名は `ResponseDto` とする（ユースケース名を付けない）。
 
 ## Presentation
 

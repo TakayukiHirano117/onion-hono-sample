@@ -46,6 +46,10 @@ class InMemoryProfileRepository implements IProfileRepository {
   }
 
   async updateTopImagePath(): Promise<void> {}
+
+  async updateTopImagePathIfCurrent(): Promise<boolean> {
+    return true;
+  }
 }
 
 class InMemoryLikeRepository implements ILikeRepository {

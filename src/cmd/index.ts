@@ -13,7 +13,7 @@ import { FindAllMemberController } from "../presentation/member/find_all_member_
 import { FindMemberDetailController } from "../presentation/member/find_member_detail_controller";
 import { FindAllMemberAppService } from "../application_service/member/find_all_member_app_service";
 import { FindMemberDetailAppService } from "../application_service/member/find_member_detail_app_service";
-import { FindMyMemberAppService } from "../application_service/member/find_my_member_app_service";
+import { FindMypageAppService } from "../application_service/member/find_mypage_app_service";
 import { MemberRepositoryImpl } from "../infra/repository/member_repository_impl";
 import { CreateMemberController } from "../presentation/member/create_member_controller";
 import { CreateMemberAppService } from "../application_service/member/create_member_app_service";
@@ -39,11 +39,16 @@ import { FindDiscoverableMembersQueryServiceImpl } from "../infra/query_service/
 import { FindLikedMembersQueryServiceImpl } from "../infra/query_service/find_liked_members_query_service_impl";
 import { LoginSessionGeneratorImpl } from "../infra/shared/login_session_generator_impl";
 import { AuthMiddleware } from "./middlewares/members/auth_middeware";
+import { createRateLimitMiddleware } from "./middlewares/rate_limit_middleware";
 import { LogoutController } from "../presentation/auth/members/logout_controller";
 import { MypageController } from "../presentation/mypage/mypage_controller";
-import { FindMyMemberController } from "../presentation/mypage/find_my_member_controller";
+import { FindMypageController } from "../presentation/mypage/find_mypage_controller";
 import { UploadTopImageController } from "../presentation/mypage/upload_top_image_controller";
 import { UploadTopImageAppService } from "../application_service/member/upload_top_image_app_service";
+import { PrepareTopImageUploadAppService } from "../application_service/member/prepare_top_image_upload_app_service";
+import { CompleteTopImageUploadAppService } from "../application_service/member/complete_top_image_upload_app_service";
+import { PrepareTopImageUploadController } from "../presentation/mypage/prepare_top_image_upload_controller";
+import { CompleteTopImageUploadController } from "../presentation/mypage/complete_top_image_upload_controller";
 import { GetMediaController, MediaController } from "../presentation/media/media_controller";
 import { LogoutAppService } from "../application_service/auth/members/logout_app_service";
 import { SessionDeleteManager } from "../infra/shared/session_delete_manager";
@@ -57,7 +62,14 @@ const STATUS_BY_CODE: Record<ApplicationErrorCode, ContentfulStatusCode> = {
   [ApplicationErrorCode.UNAUTHORIZED]: 401,
   [ApplicationErrorCode.NOT_FOUND]: 404,
   [ApplicationErrorCode.CONFLICT]: 409,
+  [ApplicationErrorCode.TOO_MANY_REQUESTS]: 429,
 };
+
+const GLOBAL_RATE_LIMIT_PER_MINUTE = 60;
+const SIGNUP_RATE_LIMIT_PER_15_MINUTES = 5;
+const LOGIN_RATE_LIMIT_PER_15_MINUTES = 10;
+const FIFTEEN_MINUTES_MS = 15 * 60 * 1000;
+const ONE_MINUTE_MS = 60 * 1000;
 
 export function createApp(
   db: Kysely<Database>,
@@ -67,6 +79,32 @@ export function createApp(
   const app = new Hono<AppEnv>().basePath("/api/v1");
 
   app.use("*", logger());
+  app.use(
+    "*",
+    createRateLimitMiddleware({
+      name: "global",
+      limit: GLOBAL_RATE_LIMIT_PER_MINUTE,
+      windowMs: ONE_MINUTE_MS,
+    }),
+  );
+  app.use(
+    "/members",
+    createRateLimitMiddleware({
+      name: "signup",
+      limit: SIGNUP_RATE_LIMIT_PER_15_MINUTES,
+      windowMs: FIFTEEN_MINUTES_MS,
+      methods: ["POST"],
+    }),
+  );
+  app.use(
+    "/auth/members/login",
+    createRateLimitMiddleware({
+      name: "login",
+      limit: LOGIN_RATE_LIMIT_PER_15_MINUTES,
+      windowMs: FIFTEEN_MINUTES_MS,
+      methods: ["POST"],
+    }),
+  );
 
   const memberRepository = new MemberRepositoryImpl(db);
   const profileRepository = new ProfileRepositoryImpl(db);
@@ -103,7 +141,7 @@ export function createApp(
     likeRepository,
     deps.topImageUrlResolver,
   );
-  const findMyMemberAppService = new FindMyMemberAppService(
+  const findMypageAppService = new FindMypageAppService(
     memberRepository,
     profileRepository,
     deps.topImageUrlResolver,
@@ -115,13 +153,29 @@ export function createApp(
     transactionManager,
     passwordHashGenerator,
     uuidGenerator,
-    deps.objectStorage,
   );
   const uploadTopImageAppService = new UploadTopImageAppService(
     profileRepository,
     deps.objectStorage,
     deps.topImageUrlResolver,
   );
+  const directTopImageUploadControllers = deps.directTopImageUpload
+    ? {
+        prepare: new PrepareTopImageUploadController(
+          new PrepareTopImageUploadAppService(
+            deps.directTopImageUpload.imageUploader,
+            uuidGenerator,
+          ),
+        ),
+        complete: new CompleteTopImageUploadController(
+          new CompleteTopImageUploadAppService(
+            profileRepository,
+            deps.directTopImageUpload.imageUploader,
+            deps.directTopImageUpload.topImageUrlResolver,
+          ),
+        ),
+      }
+    : null;
   const sendLikeAppService = new SendLikeAppService(
     likeRepository,
     memberRepository,
@@ -139,6 +193,8 @@ export function createApp(
   app.get("/", (c: Context) => {
     return c.text("Hello Hono!");
   });
+  // ALB / Docker health check（末尾スラッシュ有無の両方を受ける）
+  app.get("/health", (c: Context) => c.json({ status: "ok" }));
 
   const memberController = new MemberController(
     new FindAllMemberController(findAllMemberAppService),
@@ -165,15 +221,14 @@ export function createApp(
   app.route("/members", memberController.setUpRoutes());
 
   const mypageController = new MypageController(
-    new FindMyMemberController(findMyMemberAppService),
+    new FindMypageController(findMypageAppService),
     new UploadTopImageController(uploadTopImageAppService),
+    directTopImageUploadControllers,
     authMiddleware,
   );
   app.route("/mypage", mypageController.setUpRoutes());
 
-  const mediaController = new MediaController(
-    new GetMediaController(deps.objectStorage),
-  );
+  const mediaController = new MediaController(new GetMediaController(deps.objectStorage));
   app.route("/media", mediaController.setUpRoutes());
 
   app.route("/likes", likeController.setUpRoutes());

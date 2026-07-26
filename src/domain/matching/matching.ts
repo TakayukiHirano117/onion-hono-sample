@@ -6,13 +6,17 @@ export class Matching {
     private readonly _id: UUID,
     private readonly _member1Id: UUID,
     private readonly _member2Id: UUID,
-  ) {
-    if (_member1Id.value === _member2Id.value) {
-      throw new InvariantViolationError("同じ会員同士はマッチングできません。");
-    }
+  ) {}
+
+  static reconstruct(id: UUID, member1Id: UUID, member2Id: UUID): Matching {
+    return new Matching(id, member1Id, member2Id);
   }
 
   static create(id: UUID, memberId: UUID, otherMemberId: UUID): Matching {
+    if (memberId.value === otherMemberId.value) {
+      throw new InvariantViolationError("同じ会員同士はマッチングできません。");
+    }
+
     const [member1Id, member2Id] =
       memberId.value < otherMemberId.value ? [memberId, otherMemberId] : [otherMemberId, memberId];
 

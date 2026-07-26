@@ -1,26 +1,43 @@
-import { Context } from "hono";
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import type { AuthMiddleware } from "../../cmd/middlewares/members/auth_middeware";
-import { FindMyMemberController } from "./find_my_member_controller";
-import { UploadTopImageController } from "./upload_top_image_controller";
+import type { AppEnv } from "../../cmd/types/app_env";
+
+type ActionController = {
+  handle(c: Context<AppEnv>): Response | Promise<Response>;
+};
+
+export type DirectTopImageUploadControllers = {
+  prepare: ActionController;
+  complete: ActionController;
+};
 
 export class MypageController {
   constructor(
-    private readonly _findMyMemberController: FindMyMemberController,
-    private readonly _uploadTopImageController: UploadTopImageController,
-    private readonly _authMiddleware: AuthMiddleware,
+    private readonly _findMypageController: ActionController,
+    private readonly _uploadTopImageController: ActionController,
+    private readonly _directTopImageUploadControllers: DirectTopImageUploadControllers | null,
+    private readonly _authMiddleware: Pick<AuthMiddleware, "handle">,
   ) {}
 
   setUpRoutes = () => {
-    const router = new Hono();
+    const router = new Hono<AppEnv>();
 
-    router.get("/", this._authMiddleware.handle, (c: Context) =>
-      this._findMyMemberController.handle(c),
-    );
+    router.get("/", this._authMiddleware.handle, (c) => this._findMypageController.handle(c));
 
-    router.post("/top-image", this._authMiddleware.handle, (c: Context) =>
+    router.post("/top-image", this._authMiddleware.handle, (c) =>
       this._uploadTopImageController.handle(c),
     );
+
+    const directTopImageUploadControllers = this._directTopImageUploadControllers;
+    if (directTopImageUploadControllers) {
+      router.post("/top-image/upload", this._authMiddleware.handle, (c) =>
+        directTopImageUploadControllers.prepare.handle(c),
+      );
+
+      router.post("/top-image/upload/complete", this._authMiddleware.handle, (c) =>
+        directTopImageUploadControllers.complete.handle(c),
+      );
+    }
 
     return router;
   };

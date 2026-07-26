@@ -13,7 +13,7 @@ import {
   NotFoundError,
 } from "../shared/exception/application_error";
 
-type SendLikeInput = {
+type RequestDto = {
   fromMemberId: string;
   toMemberId: string;
 };
@@ -28,7 +28,7 @@ export class SendLikeAppService {
     private readonly _uuidGenerator: UUIDGenerator
   ) {}
 
-  async execute(input: SendLikeInput): Promise<void> {
+  async execute(input: RequestDto): Promise<void> {
     const fromMemberId = new UUID(input.fromMemberId);
     const toMemberId = new UUID(input.toMemberId);
     const like = Like.create(

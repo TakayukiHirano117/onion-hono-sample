@@ -3,8 +3,15 @@ import { TopImagePath } from "../../domain/profile/vo/top_image_path";
 import { UUID } from "../../domain/shared/vo/uuid";
 import { NotFoundError } from "../shared/exception/application_error";
 import type { ITopImageUrlResolver } from "../shared/i_top_image_url_resolver";
-import { FindAllMemberAppServiceDto } from "./find_all_member_app_service_dto";
 import { IFindDiscoverableMembersQueryService } from "./i_find_discoverable_members_query_service";
+
+export type ResponseDto = {
+  readonly id: string;
+  readonly name: string;
+  readonly email: string;
+  readonly hasLiked: boolean;
+  readonly topImageUrl: string | null;
+};
 
 export class FindAllMemberAppService {
   constructor(
@@ -13,7 +20,7 @@ export class FindAllMemberAppService {
     private readonly _topImageUrlResolver: ITopImageUrlResolver,
   ) {}
 
-  async execute(viewerMemberId: string): Promise<FindAllMemberAppServiceDto[]> {
+  async execute(viewerMemberId: string): Promise<ResponseDto[]> {
     const viewerId = new UUID(viewerMemberId);
 
     const viewerProfile = await this._profileRepository.findByMemberId(viewerId);
