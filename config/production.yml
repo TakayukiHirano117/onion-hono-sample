@@ -1,0 +1,7 @@
+auth:
+  cookie:
+    secure: true
+media:
+  publicBaseUrl: "https://images.hirano-ta.com"
+objectStorage:
+  localRootDir: ".storage"

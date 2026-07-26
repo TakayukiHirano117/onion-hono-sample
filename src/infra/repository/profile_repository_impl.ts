@@ -55,8 +55,27 @@ export class ProfileRepositoryImpl implements IProfileRepository {
       .execute();
   }
 
+  async updateTopImagePathIfCurrent(
+    memberId: UUID,
+    currentPath: TopImagePath | null,
+    nextPath: TopImagePath | null,
+    tx?: unknown,
+  ): Promise<boolean> {
+    const executor = resolveExecutor(this._db, tx);
+    const updateQuery = executor
+      .updateTable("profiles")
+      .set({ top_image_path: nextPath?.value ?? null })
+      .where("member_id", "=", memberId.value);
+    const conditionedQuery = currentPath
+      ? updateQuery.where("top_image_path", "=", currentPath.value)
+      : updateQuery.where("top_image_path", "is", null);
+    const updatedRow = await conditionedQuery.returning("member_id").executeTakeFirst();
+
+    return updatedRow !== undefined;
+  }
+
   private toProfile(row: ProfileRow): Profile {
-    return new Profile(
+    return Profile.reconstruct(
       new UUID(row.member_id),
       new Bio(row.bio),
       new Gender(row.gender),

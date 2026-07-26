@@ -2,17 +2,21 @@ import { InvariantViolationError } from "../shared/exception/domain_error";
 import { UUID } from "../shared/vo/uuid";
 
 export class Like {
-  constructor(
+  private constructor(
     private readonly _id: UUID,
     private readonly _fromMemberId: UUID,
     private readonly _toMemberId: UUID,
-  ) {
-    if (_fromMemberId.value === _toMemberId.value) {
-      throw new InvariantViolationError("自分自身にはいいねできません。");
-    }
+  ) {}
+
+  static reconstruct(id: UUID, fromMemberId: UUID, toMemberId: UUID): Like {
+    return new Like(id, fromMemberId, toMemberId);
   }
 
   static create(id: UUID, fromMemberId: UUID, toMemberId: UUID): Like {
+    if (fromMemberId.value === toMemberId.value) {
+      throw new InvariantViolationError("自分自身にはいいねできません。");
+    }
+
     return new Like(id, fromMemberId, toMemberId);
   }
 

@@ -1,0 +1,29 @@
+---
+description: API レート制限は Cmd のインメモリ middleware（コスト増ゼロ）
+globs:
+  - src/cmd/**/*.ts
+alwaysApply: false
+---
+
+# レート制限
+
+## 方針
+
+- レート制限は **Cmd middleware** に置く（Domain / ApplicationService には入れない）
+- 実装は **プロセス内インメモリ**（追加課金なし）。WAF / ElastiCache / ECS オートスケールは使わない
+- 超過時は `TooManyRequestsError` → HTTP **429**。負荷でスケールアウトしてコストを上げない
+- クライアント識別は `X-Forwarded-For` の先頭 IP（無ければ `unknown`）
+
+## 現行の上限（`createApp`）
+
+| 対象 | 上限 |
+|---|---|
+| 全体 (`*`) | 60 req / 分 / IP |
+| signup (`POST /members`) | 5 req / 15 分 / IP |
+| login (`POST /auth/members/login`) | 10 req / 15 分 / IP |
+
+## 置き場
+
+- middleware: `src/cmd/middlewares/rate_limit_middleware.ts`
+- 配線: `src/cmd/index.ts`
+- エラーコード: `ApplicationErrorCode.TOO_MANY_REQUESTS`

@@ -77,7 +77,7 @@ export class MemberRepositoryImpl implements IMemberRepository {
   }
 
   private toMember(row: MemberRow): Member {
-    return new Member(
+    return Member.reconstruct(
       new UUID(row.id),
       new Name(row.name),
       new Email(row.email),

@@ -1,5 +1,5 @@
 import { createDb } from "../infra/database/database";
-import { R2ObjectStorageImpl } from "../infra/object_storage/r2_object_storage_impl";
+import { R2ObjectStorageImpl } from "../infra/shared/r2_object_storage_impl";
 import { TopImageUrlResolverImpl } from "../infra/shared/top_image_url_resolver_impl";
 import { EnvConfigProvider } from "./config/env_config_provider";
 import { createApp } from "./index";

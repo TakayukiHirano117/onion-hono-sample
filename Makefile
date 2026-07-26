@@ -1,5 +1,5 @@
 .PHONY: help up up-d up-db up-build down build logs ps shell db-shell migrate migrate-prod \
-	restart install setup test lint lint-fix format format-check dev-worker deploy
+	restart install setup test lint lint-fix format format-check dev-worker deploy routes tree
 
 COMPOSE := docker compose
 API_DIR := .
@@ -79,3 +79,9 @@ format: ## Prettier 適用
 
 format-check: ## Prettier チェック
 	bun run format:check
+
+routes: ## 登録済み API ルート一覧を表示（hono/dev の showRoutes）
+	DATABASE_URL="$(DATABASE_URL)" bun run scripts/show_routes.ts
+
+tree: ## src のディレクトリ構成を表示
+	@tree src -d --dirsfirst

@@ -1,5 +1,5 @@
 ---
-description: R2 オブジェクトストレージとトップ画像の API 設計ルール
+description: S3/CloudFront とトップ画像の API 設計ルール
 globs:
   - onion-hono-sample/src/**/*
 ---
@@ -9,28 +9,38 @@ globs:
 ## 保存方針
 
 - DB には **ストレージキー**（`profiles.top_image_path`）のみ保存する
-- バイナリは R2（本番）または `.storage/`（ローカル Bun）に保存する
+- 本番バイナリは **非公開 S3** に保存し、公開配信は **CloudFront（OAC）** 経由
+- ローカル Bun は `.storage/` + `/api/v1/media` を使ってよい
 - API レスポンスでは `ITopImageUrlResolver` 経由で **`topImageUrl`**（公開 URL）を返す
 
-## URL 設計
+## アップロード方式（本番）
 
-- `MEDIA_PUBLIC_BASE_URL` は **フロントの `/api/media` プロキシ** を指す
-- 例: `http://localhost:3001/api/media` → `http://localhost:3001/api/media/photos/{memberId}/top.jpg`
-- API Worker 自体は `workers_dev = false` で非公開。画像も Service Binding 経由でフロントがプロキシする
+1. `POST /api/v1/mypage/top-image/upload` … Presigned POST（url/fields/uploadId）
+2. ブラウザが S3 へ直接 POST
+3. `POST /api/v1/mypage/top-image/upload/complete` … Head 再検証・昇格・DB 更新
+
+キー:
+- pending: `pending/{memberId}/{uploadId}.{ext}`
+- final: `photos/{memberId}/{uploadId}.{ext}`
 
 ## 層の責務
 
 | 層 | 責務 |
 |---|---|
-| Domain | `TopImagePath`, `TopImageUpload` VO |
-| ApplicationService | `IObjectStorage`, `ITopImageUrlResolver` interface |
-| Infra | `R2ObjectStorageImpl`, `LocalObjectStorageImpl`, `TopImageUrlResolverImpl` |
-| Presentation | multipart 受付、バイナリを VO 化して AppService へ |
+| Domain | `TopImagePath`, `TopImageMetadata`, `TopImageUpload` VO |
+| ApplicationService | prepare/complete ユースケース |
+| Infra | `IImageUploader`（技術非依存 port）, `S3ImageUploaderImpl`, `TopImageUrlResolverImpl` |
+| Presentation | JSON 受付、簡易バリデーション、AppService 呼び出し |
+
+### 依存例外
+
+`IImageUploader` は `src/infra/shared` に置く（`ITransactionManager` と同型）。ApplicationService から Infra interface への依存を許可する。
 
 ## エンドポイント
 
 | Method | Path | 用途 |
 |---|---|---|
-| POST | `/api/v1/members` | 会員登録（任意 `topImage` multipart） |
-| POST | `/api/v1/mypage/top-image` | トップ画像更新 |
-| GET | `/api/v1/media/*` | R2 プロキシ配信（`photos/` prefix のみ） |
+| POST | `/api/v1/members` | 会員登録（画像なし） |
+| POST | `/api/v1/mypage/top-image/upload` | 署名付きアップロード準備 |
+| POST | `/api/v1/mypage/top-image/upload/complete` | アップロード確定 |
+| GET | `/api/v1/media/*` | ローカル開発用配信 |

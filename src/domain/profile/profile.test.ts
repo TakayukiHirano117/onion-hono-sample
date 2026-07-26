@@ -12,7 +12,7 @@ describe('Profile', () => {
     const gender = new Gender('male')
     const birthDate = new BirthDate('1990/01/01')
 
-    const profile = new Profile(
+    const profile = Profile.reconstruct(
       memberId,
       bio,
       gender,
